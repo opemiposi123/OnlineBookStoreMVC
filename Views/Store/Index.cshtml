@@ -1,0 +1,100 @@
+﻿@model IEnumerable<OnlineBookStoreMVC.Entities.Book>
+
+@{
+    ViewData["Title"] = "Store";
+}
+
+<h2 class="my-4">Store</h2>
+
+<!-- Filter Form -->
+<form asp-action="Index" class="col-3 my-1 p-2">
+    <h5>Filter Results</h5>
+    <div class="mb-2">
+        <label for="searchString">Search:</label>
+        <input type="text" id="searchString" name="searchString" placeholder="Title or Author" class="form-control form-control-sm" />
+    </div>
+    <div class="mb-2">
+        <label for="minPrice">Price Range:</label>
+        <div class="d-flex">
+            <input type="number" id="minPrice" name="minPrice" step="1" placeholder="Min" class="form-control form-control-sm me-2" />
+            <input type="number" id="maxPrice" name="maxPrice" step="1" placeholder="Max" class="form-control form-control-sm" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
+    <a asp-action="Index" class="btn btn-secondary btn-sm float-end">Clear</a>
+</form>
+
+<!-- Book Listing -->
+<div class="row">
+    @foreach (var book in Model)
+    {
+        <div class="col-3">
+            <div class="card my-2 store-card">
+                <a class="a-cleanup" asp-controller="Store" asp-action="Details" asp-route-id="@book.Id">
+                    <img src="@book.CoverImageUrl" class="card-img-top card-img-custom">
+                    <div class="card-body" style="height: 6em;">
+                        <h5 class="mb-3">@book.Title</h5>
+                    </div>
+                </a>
+                <div class="card-body">
+                    <span class="card-text">@book.Price.ToString("c")</span>
+                    <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="d-inline">
+                        <input type="hidden" name="bookId" value="@book.Id" />
+                        <input type="hidden" name="userId" @* value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" *@ />
+                        <button type="submit" class="btn btn-primary float-right store-btn">
+                            <i class="fa-solid fa-cart-plus"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* @model IEnumerable<OnlineBookStoreMVC.Entities.Book>
+
+@{
+    ViewData["Title"] = "Store";
+}
+
+<h2 class="my-4">Store</h2>
+
+
+<form asp-action="Index" class="col-3 my-1 p-2">
+    <h5>Filter Results</h5>
+    <div class="mb-2">
+        <label for="searchString">Search:</label>
+        <input type="text" id="searchString" name="searchString" placeholder="Title or Author" class="form-control form-control-sm" />
+    </div>
+    <div class="mb-2">
+        <label for="minPrice">Price Range:</label>
+        <div class="d-flex">
+            <input type="number" id="minPrice" name="minPrice" step="1" placeholder="Min" class="form-control form-control-sm me-2" />
+            <input type="number" id="maxPrice" name="maxPrice" step="1" placeholder="Max" class="form-control form-control-sm" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
+    <a asp-action="Index" class="btn btn-secondary btn-sm float-end">Clear</a>
+</form>
+
+
+
+<div class="row">
+    @foreach (var book in Model)
+    {
+        <div class="col-3">
+            <div class="card my-2 store-card">
+                <a class="a-cleanup" asp-controller="Store" asp-action="Details" asp-route-id="@book.Id">
+                    <img src="@book.CoverImageUrl" class="card-img-top card-img-custom">
+                    <div class="card-body" style="height: 6em;">
+                        <h5 class="mb-3">@book.Title</h5>
+                    </div>
+                    <div class="card-body">
+                        <span class="card-text">@book.Price.ToString("c")</span>
+                        <a asp-controller="ShoppingCart" asp-action="AddToCart" asp-route-id="@book.Id" class="btn btn-primary float-right store-btn"><i class="fa-solid fa-cart-plus"></i></a>
+                    </div>
+                </a>
+            </div>
+        </div>
+    }
+</div> *@

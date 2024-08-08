@@ -1,0 +1,68 @@
+﻿@model OnlineBookStoreMVC.DTOs.ShoppingCartDto
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (Model.ShoppingCartItems.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ShoppingCartItems)
+            {
+                <tr>
+                    <td>@item.BookTitle</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price:C</td>
+                    <td>@item.TotalPrice:C</td>
+                    <td>
+                        <form asp-action="Reduce" method="post" style="display:inline;">
+                            <input type="hidden" name="userId" value="@Model.UserId" />
+                            <input type="hidden" name="bookId" value="@item.BookId" />
+                            <button type="submit" class="btn btn-sm btn-warning">-</button>
+                        </form>
+                        <form asp-action="Increase" method="post" style="display:inline;">
+                            <input type="hidden" name="userId" value="@Model.UserId" />
+                            <input type="hidden" name="bookId" value="@item.BookId" />
+                            <button type="submit" class="btn btn-sm btn-success">+</button>
+                        </form>
+                        <form asp-action="Remove" method="post" style="display:inline;">
+                            <input type="hidden" name="userId" value="@Model.UserId" />
+                            <input type="hidden" name="bookId" value="@item.BookId" />
+                            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3"><strong>Total:</strong></td>
+                <td colspan="2">@Model.TotalPrice:C</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <form asp-action="Clear" method="post">
+        <input type="hidden" name="userId" value="@Model.UserId" />
+        <button type="submit" class="btn btn-danger">Clear Cart</button>
+    </form>
+}
+else
+{
+    <p>Your cart is empty.</p>
+}
+
+<p>
+    <a asp-action="Index" asp-controller="Book" class="btn btn-primary">Continue Shopping</a>
+</p>
