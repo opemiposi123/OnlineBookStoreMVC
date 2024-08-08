@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OnlineBookStoreMVC.Data;
+using OnlineBookStoreMVC.Entities;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Implementation.Services;
 
@@ -10,6 +13,20 @@ builder.Services.AddTransient<IAuthorService, AuthorService>();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<IBookService, BookService>();
 builder.Services.AddTransient<IShoppingCartService, ShoppingCartService>();
+builder.Services.AddTransient<IUserService, UserService>();
+
+builder.Services.AddIdentity<User, IdentityRole>(opt =>
+{
+    opt.Password.RequiredLength = 7;
+    opt.Password.RequireDigit = false;
+    opt.Password.RequireUppercase = true;
+    opt.User.RequireUniqueEmail = true;
+    opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1); // Lockout duration
+    opt.Lockout.MaxFailedAccessAttempts = 5; // Number of failed attempts before lockout
+
+}).AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
 
 
 var connectionString = builder.Configuration.GetConnectionString("OnlineBookStoreMVC");
@@ -24,7 +41,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+await app.UseItToSeedSqlServer();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookStore.Controllers
 {
-    //[AllowAnonymous]
+    [AllowAnonymous]
     public class StoreController : Controller
     {
         private readonly ApplicationDbContext _context;

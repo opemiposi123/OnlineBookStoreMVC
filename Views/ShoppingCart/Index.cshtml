@@ -23,20 +23,20 @@
                 <tr>
                     <td>@item.BookTitle</td>
                     <td>@item.Quantity</td>
-                    <td>@item.Price:C</td>
-                    <td>@item.TotalPrice:C</td>
+                    <td>@item.Price</td>
+                    <td>@item.TotalPrice.ToString("c")</td>
                     <td>
-                        <form asp-action="Reduce" method="post" style="display:inline;">
+                        <form asp-action="ReduceCartItemQuantity" method="post" style="display:inline;">
                             <input type="hidden" name="userId" value="@Model.UserId" />
                             <input type="hidden" name="bookId" value="@item.BookId" />
                             <button type="submit" class="btn btn-sm btn-warning">-</button>
                         </form>
-                        <form asp-action="Increase" method="post" style="display:inline;">
+                        <form asp-action="IncreaseCartItemQuantity" method="post" style="display:inline;">
                             <input type="hidden" name="userId" value="@Model.UserId" />
                             <input type="hidden" name="bookId" value="@item.BookId" />
                             <button type="submit" class="btn btn-sm btn-success">+</button>
                         </form>
-                        <form asp-action="Remove" method="post" style="display:inline;">
+                        <form asp-action="RemoveCartItem" method="post" style="display:inline;">
                             <input type="hidden" name="userId" value="@Model.UserId" />
                             <input type="hidden" name="bookId" value="@item.BookId" />
                             <button type="submit" class="btn btn-sm btn-danger">Remove</button>
@@ -48,21 +48,23 @@
         <tfoot>
             <tr>
                 <td colspan="3"><strong>Total:</strong></td>
-                <td colspan="2">@Model.TotalPrice:C</td>
+                <td colspan="2">@Model.TotalPrice.ToString("c")</td>
             </tr>
         </tfoot>
     </table>
 
     <form asp-action="Clear" method="post">
         <input type="hidden" name="userId" value="@Model.UserId" />
-        <button type="submit" class="btn btn-danger">Clear Cart</button>
+        <a class="a-cleanup" ><div class="btn btn-danger float-right mr-5"><i class="fa-solid fa-trash-can"></i> Empty Cart</div> </a>
     </form>
+
+    <a class="a-cleanup" asp-controller="Order" asp-action="Checkout"><div class="btn btn-success float-right mr-5">Checkout <i class="fa-solid fa-angles-right"></i></div> </a>
 }
 else
 {
-    <p>Your cart is empty.</p>
+    <h3 class="text-center">Cart is empty</h3>
 }
 
-<p>
+@* <p>
     <a asp-action="Index" asp-controller="Book" class="btn btn-primary">Continue Shopping</a>
-</p>
+</p> *@

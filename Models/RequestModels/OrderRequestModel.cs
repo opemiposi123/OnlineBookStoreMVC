@@ -3,7 +3,7 @@
     public class OrderRequestModel
     {
         public Guid Id { get; set; }
-        public Guid UserId { get; set; }
-        public List<OrderItemRequestModel> OrderItems { get; set; }
+        public string UserId { get; set; }
+        public List<OrderItemRequestModel> OrderItems { get; set; } = new List<OrderItemRequestModel>();
     }
 }

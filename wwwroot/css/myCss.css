@@ -36,3 +36,102 @@ input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
+.card {
+    border-radius: 10px;
+}
+
+.card-header {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.form-control {
+    border-radius: 5px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+/* Add this to your site.css or within a <style> block in your .cshtml file */
+
+body {
+    background-color: #f4f4f9;
+    font-family: Arial, sans-serif;
+}
+
+.login-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .login-form .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .login-form .form-label {
+        font-weight: bold;
+        margin-bottom: .5rem;
+        display: block;
+    }
+
+    .login-form .form-control {
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        padding: .75rem 1.25rem;
+        font-size: 1rem;
+    }
+
+        .login-form .form-control:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 .2rem rgba(38, 143, 255, 0.25);
+        }
+
+    .login-form .form-check-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .login-form .form-check-input {
+        margin-right: .5rem;
+    }
+
+    .login-form .form-check-label {
+        margin-bottom: 0;
+    }
+
+    .login-form .btn {
+        font-size: 1rem;
+        font-weight: bold;
+        padding: .75rem;
+    }
+
+    .login-form .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+        .login-form .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+    .login-form .text-danger {
+        font-size: .875rem;
+    }
+
+h2.text-center {
+    margin-bottom: 2rem;
+}

@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 
 namespace OnlineBookStoreMVC.Controllers
 {
+    [Authorize(Roles = "Admin,SuperAdmin")]
+
     public class BookController : Controller
     {
         private readonly IBookService _bookService;
@@ -20,6 +23,7 @@ namespace OnlineBookStoreMVC.Controllers
             _categoryService = catgoryService;
         }
 
+        [AllowAnonymous]
         // GET: Books
         public async Task<IActionResult> Index()
         {

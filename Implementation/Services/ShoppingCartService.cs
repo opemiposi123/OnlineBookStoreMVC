@@ -14,7 +14,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             _context = context;
         }
 
-        public async Task<ShoppingCartDto> GetCartAsync(Guid userId)
+        public async Task<ShoppingCartDto> GetCartAsync(string userId)
         {
             var cart = await _context.ShoppingCarts
                 .Include(c => c.ShoppingCartItems)
@@ -39,7 +39,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 ShoppingCartItems = cart.ShoppingCartItems.Select(ci => new ShoppingCartItemDto
                 {
                     Id = ci.Id,
-                    //BookId = ci.BookId,
+                    BookId = ci.BookId,
                     BookTitle = ci.Book.Title,
                     Quantity = ci.Quantity,
                     Price = ci.Price
@@ -47,7 +47,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             };
         }
 
-        public async Task AddToCartAsync(Guid userId, Guid bookId, int quantity)
+        public async Task AddToCartAsync(string userId, Guid bookId, int quantity)
         {
             var cart = await GetOrCreateCartAsync(userId);
             var cartItem = await _context.ShoppingCartItems
@@ -74,7 +74,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<int> ReduceQuantityAsync(Guid userId, Guid bookId)
+        public async Task<int> ReduceQuantityAsync(string userId, Guid bookId)
         {
             var cart = await GetOrCreateCartAsync(userId);
             var cartItem = await _context.ShoppingCartItems
@@ -95,7 +95,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             return cartItem.Quantity;
         }
 
-        public async Task<int> IncreaseQuantityAsync(Guid userId, Guid bookId)
+        public async Task<int> IncreaseQuantityAsync(string userId, Guid bookId)
         {
             var cart = await GetOrCreateCartAsync(userId);
             var cartItem = await _context.ShoppingCartItems
@@ -109,7 +109,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             return cartItem.Quantity;
         }
 
-        public async Task RemoveFromCartAsync(Guid userId, Guid bookId)
+        public async Task RemoveFromCartAsync(string userId, Guid bookId)
         {
             var cart = await GetOrCreateCartAsync(userId);
             var cartItem = await _context.ShoppingCartItems
@@ -122,7 +122,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
         }
 
-        public async Task ClearCartAsync(Guid userId)
+        public async Task ClearCartAsync(string userId)
         {
             var cart = await GetOrCreateCartAsync(userId);
             var cartItems = _context.ShoppingCartItems.Where(ci => ci.ShoppingCartId == cart.Id);
@@ -131,7 +131,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<decimal> GetCartTotalAsync(Guid userId)
+        public async Task<decimal> GetCartTotalAsync(string userId)
         {
             var cart = await GetOrCreateCartAsync(userId);
             return await _context.ShoppingCartItems
@@ -139,7 +139,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 .SumAsync(ci => ci.Price * ci.Quantity);
         }
 
-        private async Task<ShoppingCart> GetOrCreateCartAsync(Guid userId)
+        private async Task<ShoppingCart> GetOrCreateCartAsync(string userId)
         {
             var cart = await _context.ShoppingCarts
                 .Include(c => c.ShoppingCartItems)
@@ -150,7 +150,8 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 cart = new ShoppingCart
                 {
                     Id = Guid.NewGuid(),
-                    UserId = userId
+                    UserId = userId,
+                    
                 };
                 _context.ShoppingCarts.Add(cart);
                 await _context.SaveChangesAsync();

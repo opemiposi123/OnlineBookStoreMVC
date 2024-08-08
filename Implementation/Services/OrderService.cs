@@ -15,55 +15,19 @@ namespace OnlineBookStoreMVC.Implementation.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
-        {
-            var orders = await _context.Orders.Include(o => o.OrderItems).ThenInclude(oi => oi.Book).ToListAsync();
-            return orders.Select(o => new OrderDto
-            {
-                Id = o.Id,
-                UserId = o.UserId,
-                OrderItems = o.OrderItems.Select(oi => new OrderItemDto
-                {
-                    Id = oi.Id,
-                    BookId = oi.BookId,
-                    BookTitle = oi.Book.Title,
-                    Quantity = oi.Quantity,
-                    UnitPrice = oi.UnitPrice
-                }).ToList()
-            });
-        }
-
-        public async Task<OrderDto> GetOrderByIdAsync(Guid id)
-        {
-            var order = await _context.Orders.Include(o => o.OrderItems).ThenInclude(oi => oi.Book).FirstOrDefaultAsync(o => o.Id == id);
-            if (order == null) return null;
-
-            return new OrderDto
-            {
-                Id = order.Id,
-                UserId = order.UserId,
-                OrderItems = order.OrderItems.Select(oi => new OrderItemDto
-                {
-                    Id = oi.Id,
-                    BookId = oi.BookId,
-                    BookTitle = oi.Book.Title,
-                    Quantity = oi.Quantity,
-                    UnitPrice = oi.UnitPrice
-                }).ToList()
-            };
-        }
-
-        public async Task<OrderDto> CreateOrderAsync(OrderRequestModel orderRequest)
+        public async Task<OrderDto> CheckoutAsync(OrderRequestModel orderRequest)
         {
             var order = new Order
             {
                 UserId = orderRequest.UserId,
+                OrderDate = DateTime.UtcNow,
                 OrderItems = orderRequest.OrderItems.Select(oi => new OrderItem
                 {
                     BookId = oi.BookId,
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice
-                }).ToList()
+                }).ToList(),
+                TotalAmount = orderRequest.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice)
             };
 
             _context.Orders.Add(order);
@@ -73,6 +37,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             {
                 Id = order.Id,
                 UserId = order.UserId,
+                OrderDate = order.OrderDate,
                 OrderItems = order.OrderItems.Select(oi => new OrderItemDto
                 {
                     Id = oi.Id,
@@ -80,30 +45,61 @@ namespace OnlineBookStoreMVC.Implementation.Services
                     BookTitle = oi.Book.Title,
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice
-                }).ToList()
+                }).ToList(),
+                TotalAmount = order.TotalAmount
             };
         }
 
-        public async Task<OrderDto> UpdateOrderAsync(Guid id, OrderRequestModel orderRequest)
+        public async Task<OrderDto> CheckoutCompleteAsync(string userId)
         {
-            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id);
+            var order = await _context.Orders.Include(o => o.OrderItems)
+                                              .ThenInclude(oi => oi.Book)
+                                              .Where(o => o.UserId == userId)
+                                              .OrderByDescending(o => o.OrderDate)
+                                              .FirstOrDefaultAsync();
+
             if (order == null) return null;
 
-            order.UserId = orderRequest.UserId;
-            order.OrderItems = orderRequest.OrderItems.Select(oi => new OrderItem
+            return new OrderDto
             {
-                Id = oi.Id,
-                BookId = oi.BookId,
-                Quantity = oi.Quantity,
-                UnitPrice = oi.UnitPrice
-            }).ToList();
+                Id = order.Id,
+                UserId = order.UserId,
+                OrderDate = order.OrderDate,
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    BookId = oi.BookId,
+                    BookTitle = oi.Book.Title,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice
+                }).ToList(),
+                TotalAmount = order.TotalAmount
+            };
+        }
 
+        public async Task<OrderDto> CreateOrderAsync(OrderRequestModel orderRequest)
+        {
+            var order = new Order
+            {
+                UserId = orderRequest.UserId,
+                OrderDate = DateTime.UtcNow,
+                OrderItems = orderRequest.OrderItems.Select(oi => new OrderItem
+                {
+                    BookId = oi.BookId,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice
+                }).ToList(),
+                TotalAmount = orderRequest.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice)
+            };
+
+            _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
             return new OrderDto
             {
                 Id = order.Id,
                 UserId = order.UserId,
+                OrderDate = order.OrderDate,
                 OrderItems = order.OrderItems.Select(oi => new OrderItemDto
                 {
                     Id = oi.Id,
@@ -111,19 +107,9 @@ namespace OnlineBookStoreMVC.Implementation.Services
                     BookTitle = oi.Book.Title,
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice
-                }).ToList()
+                }).ToList(),
+                TotalAmount = order.TotalAmount
             };
-        }
-
-        public async Task<bool> DeleteOrderAsync(Guid id)
-        {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null) return false;
-
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-
-            return true;
         }
     }
 

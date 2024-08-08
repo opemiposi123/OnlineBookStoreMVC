@@ -1,0 +1,41 @@
+﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.UserDto>
+
+@{
+    ViewData["Title"] = "Users List";
+}
+
+<h2>Users List</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New User</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>FullName</th>
+            <th>Email</th>
+            <th>Gender</th>
+            <th>PhoneNumber</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Username</td>
+                <td>@user.FullName</td>
+                <td>@user.Email</td>
+                <td>@user.Gender</td>
+                <td>@user.PhoneNumber</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-info">Details</a>
+                    <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

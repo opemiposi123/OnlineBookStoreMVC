@@ -1,0 +1,48 @@
+﻿@model OnlineBookStoreMVC.DTOs.OrderDto
+
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Order Confirmation</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">Order #@Model.Id</h4>
+            <small class="text-muted">Order Date: @Model.OrderDate.ToString("f")</small>
+        </div>
+        <div class="card-body">
+            <h5 class="mb-3">Items Ordered:</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <tr>
+                                <td>@item.BookTitle</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.UnitPrice.ToString("c")</td>
+                                <td>@(item.Quantity * item.UnitPrice).ToString("c")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-end mt-4">
+                <h5>Total Amount: @Model.TotalAmount.ToString("c")</h5>
+            </div>
+        </div>
+        <div class="card-footer text-end">
+            <a asp-controller="Store" asp-action="Index" class="btn btn-primary">Continue Shopping</a>
+        </div>
+    </div>
+</div>

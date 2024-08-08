@@ -1,0 +1,154 @@
+﻿/* General Styles */
+body {
+    background-color: #f5f5f5;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Header */
+h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Filter and Search Form */
+button.btn-outline-secondary {
+    color: #007bff;
+    border-color: #007bff;
+}
+
+    button.btn-outline-secondary:hover {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+.form-control.me-2 {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+}
+
+button.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+}
+
+    button.btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+/* Collapsible Filter Form */
+#filterCollapse .card {
+    border: none;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+#filterCollapse .form-control {
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+}
+
+/* Book Cards */
+.store-card {
+    border: none;
+    border-radius: 10px;
+    background-color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .store-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+.card-img-top.card-img-custom {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    height: 250px;
+    object-fit: cover;
+}
+
+.card-title {
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.card-footer {
+    background-color: #f5f5f5;
+    border-top: none;
+}
+
+/* Add to Cart Button */
+button.store-btn {
+    background-color: #28a745;
+    border-color: #28a745;
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+}
+
+    button.store-btn:hover {
+        background-color: #218838;
+    }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .store-card {
+        margin-bottom: 20px;
+    }
+
+    .form-control.me-2 {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+
+
+/*.store-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .store-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+.card-img-custom {
+    max-height: 250px;
+    object-fit: cover;
+}
+
+.a-cleanup {
+    text-decoration: none;
+    color: inherit;
+}
+
+    .a-cleanup:hover {
+        text-decoration: none;
+    }
+
+.store-btn {
+    transition: background-color 0.3s ease;
+}
+
+    .store-btn:hover {
+        background-color: #0056b3;
+    }
+
+.text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+*/

@@ -7,7 +7,7 @@ namespace OnlineBookStoreMVC.Implementation.Interface
     public interface IUserService
     {
         Task<IEnumerable<UserDto>> GetAllUsersAsync();
-        Task<UserDto> GetUserByIdAsync(Guid id);
+        Task<UserDto> GetUserByIdAsync(string id);
         Task<UserDto> CreateUserAsync(UserRequestModel userRequest);
         Task<UserDto> UpdateUserAsync(Guid id, UserRequestModel userRequest);
         Task<bool> DeleteUserAsync(Guid id);
