@@ -65,6 +65,8 @@ namespace OnlineBookStoreMVC.Controllers
         // GET: Books/Edit/5
         public async Task<IActionResult> Edit(Guid id)
         {
+            ViewBag.Authors = await _authorService.GetAuthorSelectList();
+            ViewBag.Categories = await _categoryService.GetCategorySelectList();
             var book = await _bookService.GetBookByIdAsync(id);
             if (book == null)
             {
@@ -117,148 +119,19 @@ namespace OnlineBookStoreMVC.Controllers
         }
 
         // POST: Books/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var success = await _bookService.DeleteBookAsync(id);
             if (!success)
             {
-                return NotFound();
+                // Handle the case when the book is not found
+                ViewData["ErrorMessage"] = "The book could not be found.";
+                return View("Error");
             }
-            return RedirectToAction(nameof(Index));
+
+            return RedirectToAction("Index");
         }
+
     }
 }
-
-
-
-
-
-//using Microsoft.AspNetCore.Mvc;
-//using OnlineBookStoreMVC.Implementation.Interface;
-//using OnlineBookStoreMVC.Models.RequestModels;
-
-//namespace OnlineBookStoreMVC.Controllers
-//{
-//    public class BookController : Controller
-//    {
-//        private readonly IBookService _bookService;
-
-//        public BookController(IBookService bookService)
-//        {
-//            _bookService = bookService;
-//        }
-
-//        // GET: Books
-//        public async Task<IActionResult> Index()
-//        {
-//            var books = await _bookService.GetAllBooksAsync();
-//            return View(books);
-//        }
-
-//        // GET: Books/Details/{id}
-//        public async Task<IActionResult> Details(Guid id)
-//        {
-//            var book = await _bookService.GetBookByIdAsync(id);
-
-//            if (book == null)
-//            {
-//                return NotFound();
-//            }
-
-//            return View(book);
-//        }
-
-//        // GET: Books/Create
-//        public IActionResult Create()
-//        {
-//            return View();
-//        }
-
-//        // POST: Books/Create
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> Create(BookRequestModel bookRequest)
-//        {
-//            if (ModelState.IsValid)
-//            {
-//                await _bookService.CreateBookAsync(bookRequest);
-//                return RedirectToAction(nameof(Index));
-//            }
-//            return View(bookRequest);
-//        }
-
-//        // GET: Books/Edit/{id}
-//        public async Task<IActionResult> Edit(Guid id)
-//        {
-//            var book = await _bookService.GetBookByIdAsync(id);
-
-//            if (book == null)
-//            {
-//                return NotFound();
-//            }
-
-//            var bookRequest = new BookRequestModel
-//            {
-//                Title = book.Title,
-//                Description = book.Description,
-//                ISBN = book.ISBN,
-//                Publisher = book.Publisher,
-//                PublicationDate = book.PublicationDate,
-//                Price = book.Price,
-//                AuthorId = book.AuthorId,
-//                CategoryId = book.CategoryId,
-//                CoverImageUrl = book.CoverImageUrl,
-//                Pages = book.Pages,
-//                Language = book.Language
-//            };
-
-//            return View(bookRequest);
-//        }
-
-//        // POST: Books/Edit/{id}
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> Edit(Guid id, BookRequestModel bookRequest)
-//        {
-//            if (ModelState.IsValid)
-//            {
-//                var updatedBook = await _bookService.UpdateBookAsync(id, bookRequest);
-//                if (updatedBook == null)
-//                {
-//                    return NotFound();
-//                }
-//                return RedirectToAction(nameof(Index));
-//            }
-//            return View(bookRequest);
-//        }
-
-//        // GET: Books/Delete/{id}
-//        public async Task<IActionResult> Delete(Guid id)
-//        {
-//            var book = await _bookService.GetBookByIdAsync(id);
-
-//            if (book == null)
-//            {
-//                return NotFound();
-//            }
-
-//            return View(book);
-//        }
-
-//        // POST: Books/Delete/{id}
-//        [HttpPost, ActionName("Delete")]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> DeleteConfirmed(Guid id)
-//        {
-//            var result = await _bookService.DeleteBookAsync(id);
-//            if (!result)
-//            {
-//                return NotFound();
-//            }
-
-//            return RedirectToAction(nameof(Index));
-//        }
-//    }
-//}

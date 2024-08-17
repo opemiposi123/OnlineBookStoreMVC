@@ -2,18 +2,21 @@
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 using OnlineBookStoreMVC.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using OnlineBookStoreMVC.Entities;
 
 [Route("[controller]")]
 public class UserController : Controller
 {
     private readonly IUserService _userService;
+    private readonly UserManager<User> _userManager;
+    //private readonly INotyfService notyfService;
+    private readonly IEmailService _emailService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, IEmailService emailService)
     {
         _userService = userService;
+        _emailService = emailService;
     }
 
     // Display all users
@@ -21,7 +24,7 @@ public class UserController : Controller
     public async Task<IActionResult> Index()
     {
         var users = await _userService.GetAllUsersAsync();
-        return View(users); // This will render a view named "Index" with the list of users
+        return View(users);
     }
 
     // Display details of a single user
@@ -30,31 +33,38 @@ public class UserController : Controller
     {
         var user = await _userService.GetUserByIdAsync(id);
 
-        if (user == null) return NotFound(); // Or you can return a view like "NotFound"
+        if (user == null) return NotFound();
 
-        return View(user); // This will render a view named "Details" with user details
+        return View(user);
     }
 
     // Display a form for creating a new user
     [HttpGet("Create")]
     public IActionResult Create()
     {
-        return View(); // This will render a view named "Create"
+        return View();
     }
 
-    // Handle form submission to create a new user
     [HttpPost("Create")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(UserRequestModel userRequest)
+    public async Task<IActionResult> Create(UserRequestModel userRequest, UserRequestModel profile)
     {
         if (ModelState.IsValid)
         {
-            await _userService.CreateUserAsync(userRequest);
-            return RedirectToAction(nameof(Index)); // Redirect to the list of users
-        }
+            try
+            {
+                await _userService.CreateUserAsync(userRequest);
+                var emailResponse = await _emailService.SendMessageToUserAsync(profile);
 
-        return View(userRequest); // If validation fails, re-render the form with validation errors
+                return RedirectToAction("Index", "Store");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message); 
+            }
+        }
+        return View(userRequest);
     }
+
 
     // Display a form for editing an existing user
     [HttpGet("Edit/{id}")]
@@ -85,15 +95,13 @@ public class UserController : Controller
         return View(userRequest);
     }
 
-    // Handle the deletion of a user
-    [HttpGet("Delete/{id}")]
+    [HttpPost("Delete/{id}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         await _userService.DeleteUserAsync(id);
         return RedirectToAction(nameof(Index));
     }
-
     // Display the login form
     [HttpGet("Login")]
     public IActionResult Login()
@@ -102,7 +110,7 @@ public class UserController : Controller
     }
 
     // Handle login form submission
-    [HttpPost("Login")]
+    [HttpPost("Login")] 
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginModel login)
     {
@@ -128,28 +136,5 @@ public class UserController : Controller
         return RedirectToAction("Login", "User"); // Redirect to the login page after logout
     }
 
-    // Display the change password form
-    [HttpGet("ChangePassword")]
-    public IActionResult ChangePassword() 
-    {
-        return View(); // This will render a view named "ChangePassword"
-    }
-
-    // Handle change password form submission
-    [HttpPost("ChangePassword")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChangePassword(ChangePasswordModel model, [FromQuery] string username)
-    {
-        if (ModelState.IsValid)
-        {
-            var result = await _userService.ChangePasswordAsync(model, username);
-
-            if (result.Success)
-                return RedirectToAction(nameof(Index)); // Redirect to the user list on successful password change
-
-            ModelState.AddModelError(string.Empty, result.Message);
-        }
-
-        return View(model); // Re-render the change password form with validation errors
-    }
+   
 }

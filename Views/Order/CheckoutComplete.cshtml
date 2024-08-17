@@ -5,18 +5,21 @@
 }
 
 <div class="container my-5">
-    <h2 class="text-center mb-4">Order Confirmation</h2>
+    <div class="text-center mb-4">
+        <h2 class="display-4 text-success">Order Confirmed!</h2>
+        <p class="lead">Thank you for your purchase. Your order has been placed successfully.</p>
+    </div>
 
-    <div class="card shadow-sm">
-        <div class="card-header">
-            <h4 class="mb-0">Order #@Model.Id</h4>
-            <small class="text-muted">Order Date: @Model.OrderDate.ToString("f")</small>
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Order Details</h4>
+            <small class="text-light">Order Date: @Model.OrderDate.ToString("f")</small>
         </div>
         <div class="card-body">
-            <h5 class="mb-3">Items Ordered:</h5>
+            <h5 class="mb-4">Items Ordered:</h5>
             <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
+                <table class="table table-hover">
+                    <thead class="thead-light">
                         <tr>
                             <th>Title</th>
                             <th>Quantity</th>
@@ -30,19 +33,19 @@
                             <tr>
                                 <td>@item.BookTitle</td>
                                 <td>@item.Quantity</td>
-                                <td>@item.UnitPrice.ToString("c")</td>
-                                <td>@(item.Quantity * item.UnitPrice).ToString("c")</td>
+                                <td>₦@item.UnitPrice.ToString("N2")</td>
+                                <td>₦@(item.Quantity * item.UnitPrice)</td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
             <div class="text-end mt-4">
-                <h5>Total Amount: @Model.TotalAmount.ToString("c")</h5>
+                <h4 class="text-success">Total Amount: ₦@Model.TotalAmount.ToString("N2")</h4>
             </div>
         </div>
         <div class="card-footer text-end">
-            <a asp-controller="Store" asp-action="Index" class="btn btn-primary">Continue Shopping</a>
+            <a asp-controller="Store" asp-action="Index" class="btn btn-outline-success btn-lg">Continue Shopping</a>
         </div>
     </div>
 </div>

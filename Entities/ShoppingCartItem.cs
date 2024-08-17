@@ -6,6 +6,7 @@ namespace OnlineBookStoreMVC.Entities
     {
         public Guid ShoppingCartId { get; set; }
         public ShoppingCart ShoppingCart { get; set; }
+        public string UserId { get; set; }
         public Guid BookId { get; set; }
         public Book Book { get; set; }
         public int Quantity { get; set; }

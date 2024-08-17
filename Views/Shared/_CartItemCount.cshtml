@@ -1,0 +1,16 @@
+﻿@using System.Security.Claims
+@inject IShoppingCartService ShoppingCartService
+
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int cartItemCount = 0;
+    if (userId != null)
+    {
+        cartItemCount = await ShoppingCartService.GetCartItemCountAsync(userId);
+    }
+}
+
+@if (cartItemCount > 0)
+{
+    <span class="badge badge-primary">@cartItemCount</span>
+}

@@ -69,3 +69,38 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+
+<style >
+.username-display {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    color: #343a40;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.username-display:hover {
+    background-color: #e2e6ea;
+    text-decoration: none;
+}
+
+.navbar-nav .nav-link {
+    padding: 10px 15px;
+}
+
+.cart-icon {
+    position: relative;
+}
+
+    .cart-icon .badge {
+        position: absolute;
+        top: -5px;
+        right: -10px;
+    }
+
+</style >
+

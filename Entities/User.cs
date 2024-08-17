@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OnlineBookStoreMVC.Enums;
 
 namespace OnlineBookStoreMVC.Entities
 {
@@ -8,8 +9,8 @@ namespace OnlineBookStoreMVC.Entities
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public string FullName { get; set; }
         public string Gender { get; set; }
+        public Role Role { get; set; }
         public List<Order> Orders { get; set; }
         public List<Review> Reviews { get; set; }
-        // public ShoppingCart ShoppingCart { get; set;  }
     }
 }

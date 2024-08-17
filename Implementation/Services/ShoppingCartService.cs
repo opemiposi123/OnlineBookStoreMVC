@@ -62,7 +62,8 @@ namespace OnlineBookStoreMVC.Implementation.Services
                     ShoppingCartId = cart.Id,
                     BookId = bookId,
                     Quantity = quantity,
-                    Price = book.Price
+                    Price = book.Price,
+                    UserId = userId
                 };
                 _context.ShoppingCartItems.Add(cartItem);
             }
@@ -159,5 +160,25 @@ namespace OnlineBookStoreMVC.Implementation.Services
 
             return cart;
         }
+
+        public async Task<int> GetCartItemCountAsync(string userId)
+        {
+            var cartItems = await _context.ShoppingCartItems
+                .Where(item => item.UserId == userId)
+                .CountAsync();
+
+            return cartItems;
+        }
+
+        public async Task<int> GetTotalItemsQuantityCountAsync(string userId)
+        {
+            var cart = await GetOrCreateCartAsync(userId);
+            var totalItemsCount = await _context.ShoppingCartItems
+                .Where(ci => ci.ShoppingCartId == cart.Id)
+                .SumAsync(ci => ci.Quantity);
+
+            return totalItemsCount;
+        }
+
     }
 }

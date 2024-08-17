@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 
@@ -15,7 +16,6 @@ namespace OnlineBookStoreMVC.Controllers
 
         // POST: Order/Checkout
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(OrderRequestModel orderRequest)
         {
             if (ModelState.IsValid)
@@ -25,6 +25,7 @@ namespace OnlineBookStoreMVC.Controllers
             }
             return View(orderRequest);
         }
+
 
         // GET: Order/CheckoutComplete/{userId}
         public async Task<IActionResult> CheckoutComplete(string userId)
@@ -49,5 +50,36 @@ namespace OnlineBookStoreMVC.Controllers
             }
             return View(orderRequest);
         }
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<IActionResult> ListOrders()
+        {
+            var orders = await _orderService.GetAllOrdersAsync();
+            return View(orders);
+        }
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<IActionResult> UserOrders(string userId)
+        {
+            var orders = await _orderService.GetOrdersByUserIdAsync(userId);
+            if (orders == null || !orders.Any())
+            {
+                return NotFound();
+            }
+            return View(orders);
+        }
+
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<IActionResult> OrderDetails(Guid id)
+        {
+            var orders = await _orderService.GetOrderDetials(id);
+            if (orders == null)
+            {
+                return NotFound();
+            }
+            return View(orders);
+        }
+
     }
 }

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 
 namespace OnlineBookStoreMVC.Controllers
 {
+    //[Authorize(Roles = "Admin")]
     public class AuthorController : Controller
     {
         private readonly IAuthorService _authorService;

@@ -1,0 +1,24 @@
+﻿@model OnlineBookStoreMVC.DTOs.UserDto
+
+@{
+    ViewData["Title"] = "Assign Role";
+}
+
+<h2>Assign Role to @ViewBag.Username</h2>
+
+<form asp-controller="Admin" asp-action="AssignRole" method="post">
+    <input type="hidden" name="userId" value="@ViewBag.UserId" />
+
+    <div class="form-group">
+        <label for="role">Select Role</label>
+        <select id="role" name="role" class="form-control">
+            @foreach (var role in ViewBag.Roles)
+            {
+                <option value="@role.Value">@role.Text</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Assign Role</button>
+    <a asp-controller="User" asp-action="Index" class="btn btn-secondary">Back to User List</a>
+</form>

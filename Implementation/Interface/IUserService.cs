@@ -1,4 +1,5 @@
 ﻿using OnlineBookStoreMVC.DTOs;
+using OnlineBookStoreMVC.Enums;
 using OnlineBookStoreMVC.Models;
 using OnlineBookStoreMVC.Models.RequestModels;
 
@@ -13,6 +14,6 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<bool> DeleteUserAsync(Guid id);
         Task<Status> Login(LoginModel login);
         Task LogoutAsync();
-        Task<Status> ChangePasswordAsync(ChangePasswordModel model, string username);
+        Task<Status> AssignRoleToUserAsync(string userId, Role role);
     }
 }

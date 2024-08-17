@@ -11,6 +11,8 @@ namespace OnlineBookStoreMVC.Models.RequestModels
         public DateTime PublicationDate { get; set; }
         public decimal Price { get; set; }
         public Guid AuthorId { get; set; }
+        public string AuthorName { get; set; }
+        public string CategoryName { get; set; } 
         public Guid CategoryId { get; set; }
         public IFormFile CoverImageFile { get; set; }
         public int Pages { get; set; }

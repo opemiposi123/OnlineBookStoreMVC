@@ -1,0 +1,41 @@
+﻿@model OnlineBookStoreMVC.DTOs.OrderDto
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2 class="card-title">Order Details</h2>
+                    <p class="lead">Order ID: @Model.Id</p>
+                    <p class="lead">Ordered by: @Model.UserName</p>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center text-muted mb-4">Order Summary</h4>
+                    <ul class="list-group list-group-flush mb-4">
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">@item.BookTitle</h5>
+                                    <h5>Quantity: @item.Quantity</h5>
+                                </div>
+                                <span class="badge badge-primary badge-pill">₦@item.UnitPrice.ToString("N2")</span>
+                            </li>
+                        }
+                    </ul>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="text-muted">Order Date: <strong>@Model.OrderDate.ToString("MMMM dd, yyyy")</strong></h5>
+                        <h4>Total: <strong>₦@Model.TotalAmount.ToString("N2")</strong></h4>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a asp-action="Index" class="btn btn-secondary">Back to Orders</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

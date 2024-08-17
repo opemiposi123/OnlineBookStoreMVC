@@ -47,7 +47,7 @@
 
     <div class="form-group">
         <label asp-for="AuthorId" class="control-label"></label>
-        <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.Authors">
+        <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.Authors" value="@Model.AuthorName">
             <option value="">Select Author</option>
         </select>
         <span asp-validation-for="AuthorId" class="text-danger"></span>
@@ -55,7 +55,7 @@
 
     <div class="form-group">
         <label asp-for="CategoryId" class="control-label"></label>
-        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories" value="@Model.CategoryName">
             <option value="">Select Category</option>
         </select>
         <span asp-validation-for="CategoryId" class="text-danger"></span>
@@ -85,89 +85,3 @@
 </form>
 
 <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-
-
-
-
-
-
-
-@* @model OnlineBookStoreMVC.Models.RequestModels.BookRequestModel
-
-@{
-    ViewData["Title"] = "Edit Book";
-}
-
-<h1>Edit Book</h1>
-
-<h4>Book</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <textarea asp-for="Description" class="form-control"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ISBN" class="control-label"></label>
-                <input asp-for="ISBN" class="form-control" />
-                <span asp-validation-for="ISBN" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Publisher" class="control-label"></label>
-                <input asp-for="Publisher" class="form-control" />
-                <span asp-validation-for="Publisher" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PublicationDate" class="control-label"></label>
-                <input asp-for="PublicationDate" class="form-control" type="date" />
-                <span asp-validation-for="PublicationDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AuthorId" class="control-label"></label>
-                <input asp-for="AuthorId" class="form-control" />
-                <span asp-validation-for="AuthorId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <input asp-for="CategoryId" class="form-control" />
-                <span asp-validation-for="CategoryId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CoverImageUrl" class="control-label"></label>
-                <input asp-for="CoverImageUrl" class="form-control" />
-                <span asp-validation-for="CoverImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Pages" class="control-label"></label>
-                <input asp-for="Pages" class="form-control" />
-                <span asp-validation-for="Pages" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Language" class="control-label"></label>
-                <input asp-for="Language" class="form-control" />
-                <span asp-validation-for="Language" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
- *@

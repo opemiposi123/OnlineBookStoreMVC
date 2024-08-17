@@ -1,0 +1,36 @@
+﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.OrderDto>
+
+@{
+    ViewData["Title"] = "User Orders";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@foreach (var order in Model)
+{
+    <h3>Order ID: @order.Id</h3>
+    <h4>Order Date: @order.OrderDate.ToString("yyyy-MM-dd")</h4>
+    <h4>Total Amount: @order.TotalAmount.ToString("N2")</h4>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in order.OrderItems)
+            {
+                <tr>
+                    <td>@item.BookTitle</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.UnitPrice.ToString("N2")</td>
+                    <td>@(item.Quantity * item.UnitPrice)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

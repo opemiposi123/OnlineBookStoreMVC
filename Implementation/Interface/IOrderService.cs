@@ -8,5 +8,8 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<OrderDto> CheckoutAsync(OrderRequestModel orderRequest);
         Task<OrderDto> CheckoutCompleteAsync(string userId);
         Task<OrderDto> CreateOrderAsync(OrderRequestModel orderRequest);
+        Task<IEnumerable<OrderDto>> GetAllOrdersAsync();
+        Task<IEnumerable<OrderDto>> GetOrdersByUserIdAsync(string userId);
+        Task<OrderDto> GetOrderDetials(Guid id);
     }
 }

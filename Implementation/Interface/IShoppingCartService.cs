@@ -13,5 +13,7 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task RemoveFromCartAsync(string userId, Guid bookId);
         Task ClearCartAsync(string userId);
         Task<decimal> GetCartTotalAsync(string userId);
+        Task<int> GetCartItemCountAsync(string userId);
+        Task<int> GetTotalItemsQuantityCountAsync(string userId);
     }
 }

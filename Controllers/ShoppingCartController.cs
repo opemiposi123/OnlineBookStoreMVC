@@ -18,9 +18,16 @@ namespace OnlineBookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string userId)
         {
-            var cart = await _shoppingCartService.GetCartAsync(userId);
             var userCId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewBag.UserId = userCId;
+
+            // Get the cart and cart item count
+            var cart = await _shoppingCartService.GetCartAsync(userId);
+            var itemCount = await _shoppingCartService.GetCartItemCountAsync(userId);
+
+            // Set the cart item count in ViewBag
+            ViewBag.CartItemCount = itemCount;
+
             return View(cart);
         }
 

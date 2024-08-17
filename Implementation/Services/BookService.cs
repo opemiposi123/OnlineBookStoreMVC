@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Entities;
 using OnlineBookStoreMVC.Implementation.Interface;
@@ -6,6 +7,7 @@ using OnlineBookStoreMVC.Models.RequestModels;
 
 namespace OnlineBookStoreMVC.Implementation.Services
 {
+    //[Authorize(Roles = "SuperAdmin")]
     public class BookService : IBookService
     {
         private readonly ApplicationDbContext _context;

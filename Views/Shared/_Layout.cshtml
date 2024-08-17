@@ -1,4 +1,14 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+@using OnlineBookStoreMVC.Implementation.Interface
+@inject IShoppingCartService ShoppingCartService
+
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var username = User.Identity?.Name;
+    var totalItemsCount = userId != null ? await ShoppingCartService.GetTotalItemsQuantityCountAsync(userId) : 0;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -16,47 +26,78 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Store" asp-action="Index">OnlineBookStoreMVC</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Store" asp-action="Index">OnlineBookStore</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Book" asp-action="Index">Books</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Author" asp-action="Index">Authors</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">Orders</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="User" asp-action="Index">List of Users</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Order" asp-action="ListOrders">List of Orders</a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Book" asp-action="Index">Books</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Author" asp-action="Index">Authors</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
+                                </li>
+                            }
+                        }
                     </ul>
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <form id="logoutForm" method="post" asp-area="" asp-controller="User" asp-action="Logout">
-                            <button type="submit" class="nav-link text-dark justify-content">
-                                <i class="fa-solid fa-right-from-bracket"></i>
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <a class="nav-link text-dark justify-content" asp-area="" asp-controller="User" asp-action="Login"><i class="fa-solid fa-plane-circle-check"></i></a>
-                    }
-                    <a class="nav-link text-dark float-right" asp-area="" asp-controller="ShoppingCart" asp-action="Index" asp-route-userId="@ViewBag.UserId">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                    </a>
-
-                    <a class="nav-link text-dark justify-content" asp-area="" asp-controller="User" asp-action="Create"><i class="fa-solid fa-registered"></i></a>
+                    <ul class="navbar-nav">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <div class="nav-link username-display">
+                                    <i class="fa-solid fa-user"></i> @username
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <form id="logoutForm" method="post" asp-area="" asp-controller="User" asp-action="Logout">
+                                    <button type="submit" class="nav-link text-dark justify-content btn-link">
+                                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark float-right cart-icon" asp-area="" asp-controller="ShoppingCart" asp-action="Index" asp-route-userId="@userId">
+                                    <i class="fa-solid fa-cart-shopping"></i>
+                                    Cart
+                                    @if (totalItemsCount > 0)
+                                    {
+                                        <span class="badge bg-warning text-dark">@totalItemsCount</span>
+                                    }
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="User" asp-action="Login">
+                                    <i class="fa-solid fa-plane-circle-check"></i> Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="User" asp-action="Create">
+                                    <i class="fa-solid fa-registered"></i> Register
+                                </a>
+                            </li>
+                        }
+                    </ul>
                 </div>
             </div>
         </nav>
@@ -66,7 +107,6 @@
             @RenderBody()
         </main>
     </div>
-
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2024 - OnlineBookStoreMVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
