@@ -1,0 +1,49 @@
+﻿@model OnlineBookStoreMVC.Models.RequestModels.AddressRequestModel
+
+<form asp-action="InputAddress" method="post">
+    <div class="form-group">
+        <label asp-for="FullName"></label>
+        <input asp-for="FullName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Street"></label>
+        <input asp-for="Street" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="City"></label>
+        <input asp-for="City" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="State"></label>
+        <input asp-for="State" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="PostalCode"></label>
+        <input asp-for="PostalCode" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Country"></label>
+        <input asp-for="Country" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Proceed</button>
+</form>
+
+
+ @* <form asp-controller="Order" asp-action="Checkout" method="post" style="display:inline;">
+                        <input type="hidden" name="UserId" value="@Model.UserId" />
+                        @for (int i = 0; i < Model.ShoppingCartItems.Count; i++)
+                        {
+                            <input type="hidden" name="OrderItems[@i].BookId" value="@Model.ShoppingCartItems[i].BookId" />
+                            <input type="hidden" name="OrderItems[@i].Quantity" value="@Model.ShoppingCartItems[i].Quantity" />
+                            <input type="hidden" name="OrderItems[@i].UnitPrice" value="@Model.ShoppingCartItems[i].Price" />
+                        }
+                        <button type="submit" class="btn btn-success float-right mr-5"><i class="fa-solid fa-angles-right"></i> Checkout</button>
+                    </form> *@

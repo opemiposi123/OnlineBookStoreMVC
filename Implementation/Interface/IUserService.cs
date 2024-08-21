@@ -15,5 +15,8 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<Status> Login(LoginModel login);
         Task LogoutAsync();
         Task<Status> AssignRoleToUserAsync(string userId, Role role);
+        Task<Status> ForgotPasswordAsync(string email);
+        Task<Status> VerifyResetCodeAsync(string email, string code);
+        Task<Status> ChangePasswordAsync(string email, string newPassword, string confirmPassword);
     }
 }

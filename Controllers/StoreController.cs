@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using OnlineBookStoreMVC.Implementation.Interface;
 
 namespace BookStore.Controllers
@@ -31,7 +30,7 @@ namespace BookStore.Controllers
         }
 
 
-            public async Task<IActionResult> Details(Guid id)
+        public async Task<IActionResult> Details(Guid id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
             if (book == null)

@@ -69,14 +69,8 @@
                         </button>
                     </form>
 
-                    <form asp-controller="Order" asp-action="Checkout" method="post" style="display:inline;">
+                    <form  asp-action="InputAddress" method="get" style="display:inline;">
                         <input type="hidden" name="UserId" value="@Model.UserId" />
-                        @for (int i = 0; i < Model.ShoppingCartItems.Count; i++)
-                        {
-                            <input type="hidden" name="OrderItems[@i].BookId" value="@Model.ShoppingCartItems[i].BookId" />
-                            <input type="hidden" name="OrderItems[@i].Quantity" value="@Model.ShoppingCartItems[i].Quantity" />
-                            <input type="hidden" name="OrderItems[@i].UnitPrice" value="@Model.ShoppingCartItems[i].Price" />
-                        }
                         <button type="submit" class="btn btn-success float-right mr-5"><i class="fa-solid fa-angles-right"></i> Checkout</button>
                     </form>
                 </div>

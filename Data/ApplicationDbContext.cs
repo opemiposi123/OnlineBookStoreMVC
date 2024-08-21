@@ -18,11 +18,20 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<ForgotPasswordCode> ForgotPasswordCodes { get; set; }
+    public DbSet<Address> Addresses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
         base.OnModelCreating(modelBuilder);
 
-        // Configure relationships and constraints
+        // Configure the one-to-many relationship between Address and Order
+        modelBuilder.Entity<Order>()
+          .HasOne(o => o.Address)
+          .WithMany(a => a.Orders)
+          .HasForeignKey(o => o.AddressId)
+          .OnDelete(DeleteBehavior.Restrict);  // Avoid cascade delete issues
+
     }
 }
+

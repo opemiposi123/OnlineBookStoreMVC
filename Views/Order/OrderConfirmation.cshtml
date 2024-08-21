@@ -1,0 +1,54 @@
+﻿@model OnlineBookStoreMVC.DTOs.OrderDto
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Order Confirmation</h2>
+
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-body">
+            <h4>Order Details</h4>
+            <p><strong>Order ID:</strong> @Model.Id</p>
+            <p><strong>Order Date:</strong> @Model.OrderDate.ToString("dddd, dd MMMM yyyy")</p>
+            <p><strong>Total Amount:</strong> ₦@Model.TotalAmount.ToString("N2")</p>
+        </div>
+    </div>
+
+    <div class="card shadow-lg border-0">
+        <div class="card-body">
+            <h4>Items in Your Order</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Title</th>
+                            <th>Quantity</th>
+                            <th>Price (₦)</th>
+                            <th>Total (₦)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <tr>
+                                <td>@item.BookTitle</td>
+                                <td>@item.Quantity</td>
+                                <td>₦@item.UnitPrice.ToString("N2")</td>
+                                <td>₦@item.TotalPrice.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                            <td><strong>₦@Model.TotalAmount.ToString("N2")</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <p>Thank you for your purchase!</p>
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary"><i class="fa-solid fa-home"></i> Return to Home</a>
+    </div>
+</div>

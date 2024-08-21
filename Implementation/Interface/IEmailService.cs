@@ -10,7 +10,8 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<BaseResponse<MailRecieverDto>> SendMessageToUserAsync(UserRequestModel user);
         Task<bool> SendEmailAsync(MailRecieverDto model, MailRequests request);
         Task NotifyAdminAsync(string message);
-        //Task SendPasswordResetCodeAsync(string email, string code);
+        Task<bool> SendForgotPasswordCodeAsync(User user, string code);
+
 
     }
 }

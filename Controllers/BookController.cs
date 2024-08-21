@@ -7,7 +7,6 @@ using OnlineBookStoreMVC.Models.RequestModels;
 namespace OnlineBookStoreMVC.Controllers
 {
     [Authorize(Roles = "Admin,SuperAdmin")]
-
     public class BookController : Controller
     {
         private readonly IBookService _bookService;
@@ -72,7 +71,7 @@ namespace OnlineBookStoreMVC.Controllers
             {
                 return NotFound();
             }
-            // Convert BookDto to BookRequestModel for editing
+
             var bookRequest = new BookRequestModel
             {
                 Title = book.Title,
@@ -83,7 +82,6 @@ namespace OnlineBookStoreMVC.Controllers
                 Price = book.Price,
                 AuthorId = book.AuthorId,
                 CategoryId = book.CategoryId,
-                //CoverImageFile = book.CoverImageUrl,
                 Pages = book.Pages,
                 Language = book.Language
             };

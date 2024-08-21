@@ -1,0 +1,63 @@
+﻿@model List<OnlineBookStoreMVC.DTOs.OrderSummaryDto>
+
+@{
+    ViewData["Title"] = "Order Summaries";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Order Summaries</h2>
+
+    @if (Model.Any())
+    {
+        <div class="card shadow-lg border-0">
+            <div class="card-body">
+                @foreach (var orderSummary in Model)
+                {
+                    <div class="order-summary mb-4">
+                        <h4>Order Details</h4>
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Quantity</th>
+                                    <th>Price (₦)</th>
+                                    <th>Total (₦)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in orderSummary.ShoppingCart.ShoppingCartItems)
+                                {
+                                    <tr>
+                                        <td>@item.BookTitle</td>
+                                        <td>@item.Quantity</td>
+                                        <td>₦@item.Price.ToString("N2")</td>
+                                        <td>₦@item.TotalPrice.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                    <td><strong>₦@orderSummary.ShoppingCart.TotalPrice.ToString("N2")</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <h4>Delivery Address</h4>
+                        <p><strong>Full Name:</strong> @orderSummary.Address.FullName</p>
+                        <p><strong>Email:</strong> @orderSummary.Address.Email</p>
+                        <p><strong>Phone Number:</strong> @orderSummary.Address.PhoneNumber</p>
+                    </div>
+                    <hr />
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center" role="alert">
+            <h3>No orders found</h3>
+            <p>You haven't placed any orders yet.</p>
+        </div>
+    }
+</div>

@@ -5,7 +5,7 @@ using OnlineBookStoreMVC.Models.RequestModels;
 
 namespace OnlineBookStoreMVC.Controllers
 {
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class AuthorController : Controller
     {
         private readonly IAuthorService _authorService;
@@ -42,7 +42,6 @@ namespace OnlineBookStoreMVC.Controllers
 
         // POST: Authors/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Biography")] AuthorRequestModel authorRequest)
         {
             if (ModelState.IsValid)
@@ -71,8 +70,7 @@ namespace OnlineBookStoreMVC.Controllers
         }
 
         // POST: Authors/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost("Edit")]
         public async Task<IActionResult> Edit(Guid id, [Bind("Name,Biography")] AuthorRequestModel authorRequest)
         {
             if (ModelState.IsValid)
@@ -100,8 +98,7 @@ namespace OnlineBookStoreMVC.Controllers
         }
 
         // POST: Authors/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost("Delete")]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var success = await _authorService.DeleteAuthorAsync(id);

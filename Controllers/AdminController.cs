@@ -2,9 +2,11 @@
 using OnlineBookStoreMVC.Enums;
 using OnlineBookStoreMVC.Implementation.Interface;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OnlineBookStoreMVC.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     public class AdminController : Controller
     {
         private readonly IUserService _userService;

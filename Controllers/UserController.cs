@@ -4,13 +4,13 @@ using OnlineBookStoreMVC.Models.RequestModels;
 using OnlineBookStoreMVC.Models;
 using Microsoft.AspNetCore.Identity;
 using OnlineBookStoreMVC.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 [Route("[controller]")]
 public class UserController : Controller
 {
     private readonly IUserService _userService;
     private readonly UserManager<User> _userManager;
-    //private readonly INotyfService notyfService;
     private readonly IEmailService _emailService;
 
     public UserController(IUserService userService, IEmailService emailService)
@@ -20,6 +20,7 @@ public class UserController : Controller
     }
 
     // Display all users
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -65,7 +66,6 @@ public class UserController : Controller
         return View(userRequest);
     }
 
-
     // Display a form for editing an existing user
     [HttpGet("Edit/{id}")]
     public async Task<IActionResult> Edit(string id)
@@ -110,8 +110,7 @@ public class UserController : Controller
     }
 
     // Handle login form submission
-    [HttpPost("Login")] 
-    [ValidateAntiForgeryToken]
+    [HttpPost("Login")]
     public async Task<IActionResult> Login(LoginModel login)
     {
         if (ModelState.IsValid)
@@ -136,5 +135,95 @@ public class UserController : Controller
         return RedirectToAction("Login", "User"); // Redirect to the login page after logout
     }
 
-   
+    [HttpGet("ForgotPassword")]
+    public IActionResult ForgotPassword()
+    {
+        return View();
+    }
+
+
+    [HttpPost("ForgotPassword")]
+    public async Task<IActionResult> ForgotPassword([FromForm] string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest("Email is required.");
+        }
+
+        var response = await _userService.ForgotPasswordAsync(email);
+
+        if (response.Success)
+        {
+            // Redirect to VerifyResetCode with the email as a query parameter
+            return RedirectToAction("VerifyResetCode", new { email = email });
+        }
+
+        return BadRequest(response.Message);
+    }
+
+    [HttpGet("VerifyResetCode")]
+    public IActionResult VerifyResetCode(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest("Email is required.");
+        }
+
+        var model = new VerifyResetCodeModel
+        {
+            Email = email
+        };
+        return View(model);
+    }
+
+    [HttpPost("VerifyResetCode")]
+    public async Task<IActionResult> VerifyResetCode(VerifyResetCodeModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            // Return the view with the current model state if the model is invalid
+            return View(model);
+        }
+
+        var result = await _userService.VerifyResetCodeAsync(model.Email, model.Code);
+
+        if (result.Success)
+        {
+            // Redirect to the Reset Password page
+            return RedirectToAction("ChangePassword", new { email = model.Email });
+        }
+
+        // If code verification fails, display an error
+        ModelState.AddModelError("", "Invalid or expired code.");
+        return View(model);
+    }
+
+    [HttpGet("ChangePassword")]
+    public IActionResult ChangePassword(string email)
+    {
+        var model = new ChangePasswordModel
+        {
+            Email = email
+        };
+        return View(model);
+    }
+
+    [HttpPost("ChangePassword")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var result = await _userService.ChangePasswordAsync(model.Email, model.NewPassword,model.ConfirmNewPassword);
+
+        if (result.Success)
+        {
+            return RedirectToAction("Login");
+        }
+
+        ModelState.AddModelError("", result.Message);
+        return View(model);
+    }
 }

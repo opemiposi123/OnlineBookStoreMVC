@@ -190,5 +190,37 @@ namespace OnlineBookStoreMVC.Implementation.Services
                      $"<p><strong>The Online BookStore Server</strong></p>";
         }
 
+        public async Task<bool> SendForgotPasswordCodeAsync(User user, string code)
+        {
+            _logger.LogInformation($"Sending forgot password code to {user.Email}");
+
+            string emailBody = $"<p>Dear {user.FullName},</p>" +
+                               $"<p>Your password reset code is: <strong>{code}</strong></p>" +
+                               $"<p>This code will expire in 10 minutes.</p>" +
+                               $"<p>Thank you,</p>" +
+                               $"<p>AbdulMuheez Online BookStore</p>";
+
+            var mailRequest = new MailRequests
+            {
+                Body = emailBody,
+                Title = "Password Reset Code",
+                HtmlContent = emailBody,
+                ToEmail = user.Email
+            };
+
+            try
+            {
+                await SendEmailClient(mailRequest.HtmlContent, mailRequest.Title, user.Email);
+                _logger.LogInformation("Forgot password code sent successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while sending forgot password code.");
+                return false;
+            }
+        }
+
+
     }
 }

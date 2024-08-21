@@ -16,6 +16,7 @@ builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<IShoppingCartService, ShoppingCartService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<IAddressService, AddressService>();
 
 builder.Services.AddIdentity<User, IdentityRole>(opt =>
 {

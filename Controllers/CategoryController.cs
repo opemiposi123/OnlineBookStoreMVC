@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 
 namespace OnlineBookStoreMVC.Controllers
 {
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
@@ -97,8 +99,7 @@ namespace OnlineBookStoreMVC.Controllers
         }
 
         // POST: Categories/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost("Delete")]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var success = await _categoryService.DeleteCategoryAsync(id);

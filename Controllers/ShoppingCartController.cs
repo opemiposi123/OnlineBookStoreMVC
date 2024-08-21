@@ -1,17 +1,21 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
+using OnlineBookStoreMVC.Models.RequestModels;
 using System.Security.Claims;
 
 namespace OnlineBookStoreMVC.Controllers
 {
+    //[Authorize]
     public class ShoppingCartController : Controller
     {
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IAddressService _addressService;
 
-        public ShoppingCartController(IShoppingCartService shoppingCartService)
+        public ShoppingCartController(IShoppingCartService shoppingCartService, IAddressService addressService)
         {
             _shoppingCartService = shoppingCartService;
+            _addressService = addressService;
         }
 
         // GET: ShoppingCart/Index
@@ -77,6 +81,27 @@ namespace OnlineBookStoreMVC.Controllers
         {
             var total = await _shoppingCartService.GetCartTotalAsync(userId);
             return Json(new { Total = total });
+        }
+        [HttpGet]
+        public IActionResult InputAddress()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InputAddress(AddressRequestModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Assuming that _addressService handles the saving of the address
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the current user's ID
+                await _addressService.AddAddressAsync(model, userId);
+
+                // Redirect to the Order Summary page after saving the address
+                return RedirectToAction("OrderSummary", "Order");
+            }
+
+            return View(model); // If the model is invalid, return to the input address view
         }
     }
 }

@@ -9,10 +9,12 @@ namespace OnlineBookStoreMVC.Implementation.Services
     public class OrderService : IOrderService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IShoppingCartService _shoppingCartService;
 
-        public OrderService(ApplicationDbContext context)
+        public OrderService(ApplicationDbContext context, IShoppingCartService shoppingCartService)
         {
             _context = context;
+            _shoppingCartService = shoppingCartService;
         }
         public async Task<OrderDto> CheckoutAsync(OrderRequestModel orderRequest)
         {
@@ -181,29 +183,159 @@ namespace OnlineBookStoreMVC.Implementation.Services
             });
         }
 
-        public async Task<OrderDto> GetOrderDetials(Guid id)
+        public async Task<OrderDto> GetOrderDetailsAsync(Guid id)
         {
             var order = await _context.Orders
-                .Where(o => o.Id == id)
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Book)
-                .Select(order => new OrderDto
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null) return null;
+
+            return new OrderDto
+            {
+                Id = order.Id,
+                UserId = order.UserId,
+                UserName = order.User.UserName ?? "Unknown User",
+                OrderDate = order.OrderDate,
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    BookId = oi.BookId,
+                    BookTitle = oi.Book?.Title ?? "Unknown Book",
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice
+                }).ToList(),
+                TotalAmount = order.TotalAmount
+            };
+        }
+
+
+        public async Task<OrderSummaryDto> GetOrderSummaryAsync(string userId)
+        {
+            var cart = await _shoppingCartService.GetCartAsync(userId);
+            var address = await _context.Addresses.FirstOrDefaultAsync(a => a.UserId == userId);
+
+            return new OrderSummaryDto
+            {
+                ShoppingCart = cart ?? new ShoppingCartDto(),
+                Address = address != null ? new AddressDto
+                {
+                    FullName = address.FullName,
+                    Email = address.Email,
+                    PhoneNumber = address.PhoneNumber,
+                    Street = address.Street,
+                    City = address.City,
+                    State = address.State,
+                    PostalCode = address.PostalCode,
+                    Country = address.Country
+                } : new AddressDto() // Provide a default AddressDto or handle accordingly
+            };
+        }
+
+
+        public async Task<List<OrderSummaryDto>> GetAllOrderSummariesAsync(string userId)
+        {
+            var orders = await _context.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book)
+                .Include(o => o.Address)
+                .ToListAsync();
+
+            var orderSummaries = orders.Select(o => new OrderSummaryDto
+            {
+                ShoppingCart = new ShoppingCartDto
+                {
+                    ShoppingCartItems = o.OrderItems.Select(oi => new ShoppingCartItemDto
+                    {
+                        BookId = oi.BookId,
+                        BookTitle = oi.Book.Title,
+                        Quantity = oi.Quantity,
+                        Price = oi.UnitPrice
+                    }).ToList(),
+                   // TotalPrice = o.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice)
+                },
+                Address = new AddressDto
+                {
+                    FullName = o.Address.FullName,
+                    Email = o.Address.Email,
+                    PhoneNumber = o.Address.PhoneNumber,
+                    // Add other address fields as needed
+                }
+            }).ToList();
+
+            return orderSummaries;
+        }
+
+        public async Task<OrderDto> PlaceOrderAsync(OrderSummaryDto orderSummary)
+        {
+            if (orderSummary == null)
+            {
+                throw new ArgumentNullException(nameof(orderSummary), "Order summary cannot be null.");
+            }
+
+            if (orderSummary.ShoppingCart == null)
+            {
+                throw new ArgumentNullException(nameof(orderSummary.ShoppingCart), "Shopping cart cannot be null.");
+            }
+
+            if (orderSummary.Address == null)
+            {
+                throw new ArgumentNullException(nameof(orderSummary.Address), "Address cannot be null.");
+            }
+
+            try
+            {
+                var order = new Order
+                {
+                    UserId = orderSummary.UserId,
+                    OrderDate = DateTime.UtcNow,
+                    TotalAmount = orderSummary.OrderTotal,
+                    OrderItems = orderSummary.ShoppingCart.ShoppingCartItems?.Select(item => new OrderItem
+                    {
+                        BookId = item.BookId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.Price
+                    }).ToList() ?? new List<OrderItem>(), // Use an empty list if ShoppingCartItems is null
+                    Address = new Address
+                    {
+                        FullName = orderSummary.Address.FullName,
+                        Email = orderSummary.Address.Email,
+                        PhoneNumber = orderSummary.Address.PhoneNumber,
+                        Street = orderSummary.Address.Street,
+                        City = orderSummary.Address.City,
+                        State = orderSummary.Address.State,
+                        PostalCode = orderSummary.Address.PostalCode,
+                        Country = orderSummary.Address.Country
+                    }
+                };
+
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                return new OrderDto
                 {
                     Id = order.Id,
                     UserId = order.UserId,
-                    UserName = order.User.UserName ?? "Unknown User",
                     OrderDate = order.OrderDate,
+                    TotalAmount = order.TotalAmount,
                     OrderItems = order.OrderItems.Select(oi => new OrderItemDto
                     {
                         Id = oi.Id,
                         BookId = oi.BookId,
-                        BookTitle = oi.Book.Title ?? "Unknown Book",
+                        BookTitle = oi.Book?.Title, // Use ?. to safely access Book.Title
                         Quantity = oi.Quantity,
                         UnitPrice = oi.UnitPrice
-                    }).ToList(),
-                    TotalAmount = order.TotalAmount
-                }).FirstOrDefaultAsync();
-            return order;
+                    }).ToList()
+                };
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                throw;
+            }
         }
 
     }
