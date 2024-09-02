@@ -1,0 +1,17 @@
+﻿@* @model OnlineBookStoreMVC. *@
+<h2>Payment Verification</h2>
+
+@if (Model.Status)
+{
+    <p>Your payment was successful! Redirecting to order confirmation...</p>
+    <script>
+        setTimeout(function () {
+            window.location.href = '@Url.Action("OrderConfirmation", "Orders", new { orderId = Model.OrderId })';
+        }, 3000);
+    </script>
+}
+else
+{
+    <p>There was an issue verifying your payment. Please try again.</p>
+    <a href="@Url.Action("OrderSummary", "Orders", new { orderId = Model.OrderId })">Return to Order Summary</a>
+}

@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<User> Users { get; set; }
     public DbSet<ForgotPasswordCode> ForgotPasswordCodes { get; set; }
     public DbSet<Address> Addresses { get; set; }
+    public DbSet<Payment> Payments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -12,11 +12,18 @@ namespace OnlineBookStoreMVC.Controllers
     {
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderService _orderService;
+        private readonly PaymentService _paymentService;
 
-        public OrderController(IOrderService orderService, IShoppingCartService shoppingCartService)
+        public OrderController(IOrderService orderService, IShoppingCartService shoppingCartService, PaymentService paymentService)
         {
             _orderService = orderService;
             _shoppingCartService = shoppingCartService;
+            _paymentService = paymentService;
+        }
+        public async Task<IActionResult> OrderDetails(Guid id)
+        {
+            var order = await _orderService.GetOrderDetailsAsync(id);
+            return View(order);
         }
 
         [HttpGet]
@@ -24,7 +31,6 @@ namespace OnlineBookStoreMVC.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Get the order summary for the current user
             var orderSummary = await _orderService.GetOrderSummaryAsync(userId);
 
             return View("OrderSummary", orderSummary);
@@ -35,7 +41,6 @@ namespace OnlineBookStoreMVC.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Get all order summaries for the current user
             var orderSummaries = await _orderService.GetAllOrderSummariesAsync(userId);
 
             return View(orderSummaries);
@@ -82,51 +87,19 @@ namespace OnlineBookStoreMVC.Controllers
             return View(orders);
         }
 
-        //[Authorize(Roles = "Admin,SuperAdmin")]
-        //public async Task<IActionResult> OrderDetails(Guid id)
-        //{
-        //    var orders = await _orderService.GetOrderDetials(id);
-        //    if (orders == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return View(orders);
-        //}
-
         [HttpPost]
-        public async Task<IActionResult> PlaceOrder(OrderSummaryDto orderSummary)
+        public async Task<IActionResult> DeleteOrder(Guid id)
         {
-            if (!ModelState.IsValid)
+            var success = await _orderService.DeleteOrderAsync(id);
+            if (!success)
             {
-                // Return to the summary view if the model is invalid
-                return View("OrderSummary", orderSummary);
+                return NotFound();
             }
 
-            var order = await _orderService.PlaceOrderAsync(orderSummary);
-
-            if (order == null)
-            {
-                // Handle the error (e.g., show an error message)
-                ModelState.AddModelError("", "There was a problem placing your order. Please try again.");
-                return View("OrderSummary", orderSummary);
-            }
-
-            // Redirect to the OrderConfirmation view after placing the order
-            return RedirectToAction("OrderConfirmation", new { orderId = order.Id });
+            TempData["SuccessMessage"] = "Order deleted successfully.";
+            return RedirectToAction(nameof(Index));
         }
 
-        //public async Task<IActionResult> OrderConfirmation(Guid orderId)
-        //{
-        //    var order = await _orderService.GetOrderDetials(orderId);
-
-        //    if (order == null)
-        //    {
-        //        // Handle the case where the order is not found
-        //        return RedirectToAction("Index", "Home");
-        //    }
-
-        //    return View(order);
-        //}
 
         public async Task<IActionResult> OrderConfirmation(Guid orderId)
         {
@@ -134,14 +107,93 @@ namespace OnlineBookStoreMVC.Controllers
 
             if (order == null)
             {
-                // Optionally, show a custom error view or message
                 return RedirectToAction("Index", "Home");
             }
 
             return View(order);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> PlaceOrder(OrderSummaryDto orderSummary)
+        {
+            var order = await _orderService.PlaceOrderAsync(orderSummary);
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+
+            var callbackUrl = Url.Action("OrderConfirmation", "Order", new { orderId = order.Id }, Request.Scheme);
+
+            var paymentResponse = await _paymentService.InitializePaymentAsync(
+                orderSummary.OrderTotal,
+                email,
+                callbackUrl,
+                order.Id.ToString()
+            );
+
+            if (paymentResponse == null || paymentResponse.Data == null || string.IsNullOrEmpty(paymentResponse.Data.AuthorizationUrl))
+            {
+                throw new InvalidOperationException($"The AuthorizationUrl is missing or invalid. Error: {paymentResponse?.Message}");
+            }
+
+            await _shoppingCartService.ClearCartAsync(userId);
+
+            return Redirect(paymentResponse.Data.AuthorizationUrl);
+        }
+
+
+        //[HttpPost]
+        //public async Task<IActionResult> PlaceOrder(OrderSummaryDto orderSummary)
+        //{
+        //    var order = await _orderService.PlaceOrderAsync(orderSummary);
+
+        //    var email = User.FindFirstValue(ClaimTypes.Email);
+
+        //    var callbackUrl = Url.Action("VerifyPayment", "Order", new { reference = order.Id.ToString() }, Request.Scheme);
+
+        //    var paymentResponse = await _paymentService.InitializePaymentAsync(
+        //        orderSummary.OrderTotal,
+        //        email,
+        //        callbackUrl,
+        //        order.Id.ToString()
+        //    );
+
+        //    if (paymentResponse == null || paymentResponse.Data == null || string.IsNullOrEmpty(paymentResponse.Data.AuthorizationUrl))
+        //    {
+        //        throw new InvalidOperationException($"The AuthorizationUrl is missing or invalid. Error: {paymentResponse?.Message}");
+        //    }
+        //    TempData["OrderSummary"] = JsonConvert.SerializeObject(orderSummary);
+
+        //    return Redirect(paymentResponse.Data.AuthorizationUrl);
+        //}
+
+        //[HttpGet]
+        //public async Task<IActionResult> VerifyPayment(string reference)
+        //{
+        //    // Verify the payment with Paystack
+        //    var verifyResponse = await _paymentService.VerifyPaymentAsync(reference);
+
+        //    //if (!verifyResponse.Status || verifyResponse.Data.Status != "success")
+        //    //{
+        //    //    ModelState.AddModelError("", "Payment verification failed. Please try again.");
+        //    //    return RedirectToAction("OrderSummary");
+        //    //}
+
+        //    // Retrieve the orderSummary from TempData
+        //    var orderSummaryJson = TempData["OrderSummary"] as string;
+        //    var orderSummary = JsonConvert.DeserializeObject<OrderSummaryDto>(orderSummaryJson);
+
+        //    //if (orderSummary == null)
+        //    //{
+        //    //    ModelState.AddModelError("", "Order summary could not be retrieved. Please try again.");
+        //    //    return RedirectToAction("OrderSummary");
+        //    //}
+
+        //    // Clear the shopping cart
+        //    //await _shoppingCartService.ClearCartAsync(User.Identity.Name);
+
+        //    // Redirect to the OrderConfirmation view after placing the order
+        //    return RedirectToAction("OrderConfirmation", new { orderId = orderSummary.OrderId });
+        //}
 
     }
 }

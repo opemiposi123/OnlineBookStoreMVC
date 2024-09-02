@@ -2,24 +2,23 @@
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 using OnlineBookStoreMVC.Models;
-using Microsoft.AspNetCore.Identity;
-using OnlineBookStoreMVC.Entities;
 using Microsoft.AspNetCore.Authorization;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 [Route("[controller]")]
 public class UserController : Controller
 {
     private readonly IUserService _userService;
-    private readonly UserManager<User> _userManager;
     private readonly IEmailService _emailService;
+    private readonly INotyfService _notyf;
 
-    public UserController(IUserService userService, IEmailService emailService)
+    public UserController(IUserService userService, IEmailService emailService, INotyfService notyf)
     {
         _userService = userService;
         _emailService = emailService;
+        _notyf = notyf;
     }
 
-    // Display all users
     [Authorize(Roles = "Admin,SuperAdmin")]
     [HttpGet]
     public async Task<IActionResult> Index()
@@ -28,7 +27,6 @@ public class UserController : Controller
         return View(users);
     }
 
-    // Display details of a single user
     [HttpGet("{id}")]
     public async Task<IActionResult> Details(string id)
     {
@@ -39,7 +37,6 @@ public class UserController : Controller
         return View(user);
     }
 
-    // Display a form for creating a new user
     [HttpGet("Create")]
     public IActionResult Create()
     {
@@ -56,17 +53,17 @@ public class UserController : Controller
                 await _userService.CreateUserAsync(userRequest);
                 var emailResponse = await _emailService.SendMessageToUserAsync(profile);
 
+                _notyf.Success("User has been successfully created.");
                 return RedirectToAction("Index", "Store");
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message); 
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
         }
         return View(userRequest);
     }
 
-    // Display a form for editing an existing user
     [HttpGet("Edit/{id}")]
     public async Task<IActionResult> Edit(string id)
     {
@@ -81,7 +78,6 @@ public class UserController : Controller
         });
     }
 
-    // Handle form submission to update an existing user
     [HttpPost("Edit/{id}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Guid id, UserRequestModel userRequest)
@@ -89,6 +85,7 @@ public class UserController : Controller
         if (ModelState.IsValid)
         {
             await _userService.UpdateUserAsync(id, userRequest);
+            _notyf.Success("User details have been successfully updated.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -100,16 +97,16 @@ public class UserController : Controller
     public async Task<IActionResult> Delete(Guid id)
     {
         await _userService.DeleteUserAsync(id);
+        _notyf.Success("User has been successfully deleted.");
         return RedirectToAction(nameof(Index));
     }
-    // Display the login form
+
     [HttpGet("Login")]
     public IActionResult Login()
     {
-        return View(); // This will render a view named "Login"
+        return View();
     }
 
-    // Handle login form submission
     [HttpPost("Login")]
     public async Task<IActionResult> Login(LoginModel login)
     {
@@ -118,21 +115,24 @@ public class UserController : Controller
             var result = await _userService.Login(login);
 
             if (result.Success)
-                return RedirectToAction("Index", "Store"); // Redirect to the user list on successful login
+            {
+                _notyf.Success("Login successful.");
+                return RedirectToAction("Index", "Store");
+            }
 
             ModelState.AddModelError(string.Empty, result.Message);
         }
 
-        return View(login); // Re-render the login form with validation errors
+        return View(login);
     }
 
-    // Handle logout
     [HttpPost("Logout")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await _userService.LogoutAsync();
-        return RedirectToAction("Login", "User"); // Redirect to the login page after logout
+        _notyf.Success("Logout successful.");
+        return RedirectToAction("Login", "User");
     }
 
     [HttpGet("ForgotPassword")]
@@ -140,7 +140,6 @@ public class UserController : Controller
     {
         return View();
     }
-
 
     [HttpPost("ForgotPassword")]
     public async Task<IActionResult> ForgotPassword([FromForm] string email)
@@ -154,7 +153,7 @@ public class UserController : Controller
 
         if (response.Success)
         {
-            // Redirect to VerifyResetCode with the email as a query parameter
+            _notyf.Success("Reset code has been sent to your email.");
             return RedirectToAction("VerifyResetCode", new { email = email });
         }
 
@@ -181,7 +180,6 @@ public class UserController : Controller
     {
         if (!ModelState.IsValid)
         {
-            // Return the view with the current model state if the model is invalid
             return View(model);
         }
 
@@ -189,6 +187,7 @@ public class UserController : Controller
 
         if (result.Success)
         {
+            _notyf.Success("Reset code verified successfully.");
             // Redirect to the Reset Password page
             return RedirectToAction("ChangePassword", new { email = model.Email });
         }
@@ -216,10 +215,11 @@ public class UserController : Controller
             return View(model);
         }
 
-        var result = await _userService.ChangePasswordAsync(model.Email, model.NewPassword,model.ConfirmNewPassword);
+        var result = await _userService.ChangePasswordAsync(model.Email, model.NewPassword, model.ConfirmNewPassword);
 
         if (result.Success)
         {
+            _notyf.Success("Password changed successfully.");
             return RedirectToAction("Login");
         }
 

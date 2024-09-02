@@ -38,10 +38,10 @@
                             @if (User.IsInRole("SuperAdmin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="User" asp-action="Index">List of Users</a>
+                                    <a class="nav-link" asp-area="" asp-controller="User" asp-action="Index">Users</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Order" asp-action="ListOrders">List of Orders</a>
+                                    <a class="nav-link" asp-area="" asp-controller="Order" asp-action="ListOrders">Orders</a>
                                 </li>
                             }
                             @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
@@ -66,9 +66,9 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <div class="nav-link username-display">
+                                <a class="nav-link username-display" asp-controller="User" asp-action="Details" asp-route-id="@userId">
                                     <i class="fa-solid fa-user"></i> @username
-                                </div>
+                                </a>
                             </li>
                             <li class="nav-item">
                                 <form id="logoutForm" method="post" asp-area="" asp-controller="User" asp-action="Logout">
@@ -119,6 +119,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @await Component.InvokeAsync("Notyf")
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

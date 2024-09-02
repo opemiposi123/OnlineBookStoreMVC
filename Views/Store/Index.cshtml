@@ -32,6 +32,7 @@
                     </div>
                 </a>
                 <div class="card-footer text-center">
+                    
                     <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="d-inline">
                         <input type="hidden" name="bookId" value="@book.Id" />
                         <input type="hidden" name="userId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />

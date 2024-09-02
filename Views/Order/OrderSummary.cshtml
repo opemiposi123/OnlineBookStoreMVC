@@ -50,9 +50,39 @@
 
             <div class="text-right mt-4">
                 <form asp-action="PlaceOrder" method="post">
+                    <!-- User ID -->
                     <input type="hidden" asp-for="UserId" />
+                    <input type="hidden" asp-for="OrderId" />
+
+                    <!-- Shopping Cart Items -->
+                    @for (int i = 0; i < Model.ShoppingCart.ShoppingCartItems.Count; i++)
+                    {
+                        <input type="hidden" name="ShoppingCart.ShoppingCartItems[@i].BookId" value="@Model.ShoppingCart.ShoppingCartItems[i].BookId" />
+                        <input type="hidden" name="ShoppingCart.ShoppingCartItems[@i].Quantity" value="@Model.ShoppingCart.ShoppingCartItems[i].Quantity" />
+                        <input type="hidden" name="ShoppingCart.ShoppingCartItems[@i].Price" value="@Model.ShoppingCart.ShoppingCartItems[i].Price" />
+                    }
+
+                    <!-- Address Fields -->
+                    <input type="hidden" asp-for="Address.FullName" />
+                    <input type="hidden" asp-for="Address.Email" />
+                    <input type="hidden" asp-for="Address.PhoneNumber" />
+                    <input type="hidden" asp-for="Address.Street" />
+                    <input type="hidden" asp-for="Address.City" />
+                    <input type="hidden" asp-for="Address.State" />
+                    <input type="hidden" asp-for="Address.PostalCode" />
+                    <input type="hidden" asp-for="Address.Country" />
+
+                    <!-- Total Price (optional, as it's calculated in the DTO) -->
                     <input type="hidden" asp-for="ShoppingCart.TotalPrice" />
-                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Place Order</button>
+
+                    <!-- Submit Button -->
+                    <form asp-action="InitializePayment" method="post">
+                        <input type="hidden" asp-for="UserId" />
+                        <input type="hidden" asp-for="ShoppingCart.TotalPrice" />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-check"></i> Place Order & Pay
+                        </button>
+                    </form>
                 </form>
             </div>
         </div>

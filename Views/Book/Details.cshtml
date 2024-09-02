@@ -4,145 +4,63 @@
     ViewData["Title"] = "Book Details";
 }
 
-<h1>Book Details</h1>
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="text-center mb-4">@Model.Title</h1>
 
-<div>
-    <h2>@Model.Title</h2>
-    <dl class="row">
-        <dt class="col-sm-2">Cover Image</dt>
-        <dd class="col-sm-10">
-            <img src="@Model.CoverImageUrl" alt="Cover Image" style="max-width: 200px;" /></dd>
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center">
+                            <img src="@Model.CoverImageUrl" alt="Cover Image" class="img-fluid" style="max-width: 200px;" />
+                        </div>
+                        <div class="col-md-8">
+                            <dl class="row">
+                                <dt class="col-sm-4">Author</dt>
+                                <dd class="col-sm-8">@Model.AuthorName</dd>
 
-        <dt class="col-sm-2">Author</dt>
-        <dd class="col-sm-10">@Model.AuthorName</dd>
+                                <dt class="col-sm-4">Category</dt>
+                                <dd class="col-sm-8">@Model.CategoryName</dd>
 
-        <dt class="col-sm-2">Category</dt>
-        <dd class="col-sm-10">@Model.CategoryName</dd>
+                                <dt class="col-sm-4">ISBN</dt>
+                                <dd class="col-sm-8">@Model.ISBN</dd>
 
-        <dt class="col-sm-2">ISBN</dt>
-        <dd class="col-sm-10">@Model.ISBN</dd>
+                                <dt class="col-sm-4">Publisher</dt>
+                                <dd class="col-sm-8">@Model.Publisher</dd>
 
-        <dt class="col-sm-2">Publisher</dt>
-        <dd class="col-sm-10">@Model.Publisher</dd>
+                                <dt class="col-sm-4">Publication Date</dt>
+                                <dd class="col-sm-8">@Model.PublicationDate.ToShortDateString()</dd>
 
-        <dt class="col-sm-2">Publication Date</dt>
-        <dd class="col-sm-10">@Model.PublicationDate.ToShortDateString()</dd>
+                                <dt class="col-sm-4">Price</dt>
+                                <dd class="col-sm-8">@Model.Price.ToString("N2")</dd>
 
-        <dt class="col-sm-2">Price</dt>
-        <dd class="col-sm-10">@Model.Price.ToString("N2")</dd>
+                                <dt class="col-sm-4">Language</dt>
+                                <dd class="col-sm-8">@Model.Language</dd>
 
-        <dt class="col-sm-2">Language</dt>
-        <dd class="col-sm-10">@Model.Language</dd>
+                                <dt class="col-sm-4">Pages</dt>
+                                <dd class="col-sm-8">@Model.Pages</dd>
+                            </dl>
+                        </div>
+                    </div>
 
-        <dt class="col-sm-2">Pages</dt>
-        <dd class="col-sm-10">@Model.Pages</dd>
-    </dl>
+                    <h3 class="mt-4">Reviews</h3>
+                    <ul class="list-unstyled">
+                        @foreach (var review in Model.Reviews)
+                        {
+                            <li class="border-bottom py-2">
+                                <strong>Rating:</strong> @review.Rating<br />
+                                <strong>Comment:</strong> @review.Comment
+                            </li>
+                        }
+                    </ul>
 
-    <h3>Reviews</h3>
-    <ul>
-    @foreach (var review in Model.Reviews)
-    {
-        <li>
-            <strong>Rating:</strong> @review.Rating<br />
-            <strong>Comment:</strong> @review.Comment
-        </li>
-    }
-    </ul>
-
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    <div class="text-center mt-4">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
+                        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-
-
-
-
-
-
-
-@* @model OnlineBookStoreMVC.DTOs.BookDto
-
-@{
-    ViewData["Title"] = "Book Details";
-}
-
-<h1>Book Details</h1>
-
-<div>
-    <h4>Book</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            Title
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Title
-        </dd>
-        <dt class="col-sm-2">
-            Description
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Description
-        </dd>
-        <dt class="col-sm-2">
-            ISBN
-        </dt>
-        <dd class="col-sm-10">
-            @Model.ISBN
-        </dd>
-        <dt class="col-sm-2">
-            Publisher
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Publisher
-        </dd>
-        <dt class="col-sm-2">
-            Publication Date
-        </dt>
-        <dd class="col-sm-10">
-            @Model.PublicationDate
-        </dd>
-        <dt class="col-sm-2">
-            Price
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Price
-        </dd>
-        <dt class="col-sm-2">
-            Author
-        </dt>
-        <dd class="col-sm-10">
-            @Model.AuthorName
-        </dd>
-        <dt class="col-sm-2">
-            Category
-        </dt>
-        <dd class="col-sm-10">
-            @Model.CategoryName
-        </dd>
-        <dt class="col-sm-2">
-            Pages
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Pages
-        </dd>
-        <dt class="col-sm-2">
-            Language
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Language
-        </dd>
-        <dt class="col-sm-2">
-            Cover Image URL
-        </dt>
-        <dd class="col-sm-10">
-            @Model.CoverImageUrl
-        </dd>
-    </dl>
-</div>
-
-<div>
-    <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a class="btn btn-primary" asp-action="Index">Back to List</a>
-</div>
- *@

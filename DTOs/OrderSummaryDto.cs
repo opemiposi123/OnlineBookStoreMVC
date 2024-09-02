@@ -2,11 +2,10 @@
 {
     public class OrderSummaryDto
     {
-        public ShoppingCartDto ShoppingCart { get; set; } // The shopping cart containing the items being purchased
-        public AddressDto Address { get; set; } // The delivery address
+        public ShoppingCartDto ShoppingCart { get; set; }
+        public AddressDto Address { get; set; }
         public string UserId { get; set; }
-
-        // Optional: You can add additional properties like OrderTotal, Tax, ShippingCost, etc.
+        public string OrderId { get; set; } 
         public decimal OrderTotal => ShoppingCart?.TotalPrice ?? 0m;
     }
 

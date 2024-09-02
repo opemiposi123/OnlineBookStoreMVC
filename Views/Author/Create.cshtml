@@ -1,33 +1,41 @@
 ﻿@model OnlineBookStoreMVC.Models.RequestModels.AuthorRequestModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Author";
 }
 
-<h1>Create</h1>
+<div class="container my-5">
+    <h1 class="text-center">Create Author</h1>
 
-<h4>Author</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Author Details</h4>
+                    <hr />
+                    <form asp-action="Create">
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="form-label">Author Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter author's name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="Biography" class="form-label">Biography</label>
+                            <textarea asp-for="Biography" class="form-control" rows="5" placeholder="Enter author's biography"></textarea>
+                            <span asp-validation-for="Biography" class="text-danger"></span>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                                <i class="bi bi-save"></i> Create
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Biography" class="control-label"></label>
-                <textarea asp-for="Biography" class="form-control"></textarea>
-                <span asp-validation-for="Biography" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="bi bi-save" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-link">Back to List</a>
+    </div>
 </div>

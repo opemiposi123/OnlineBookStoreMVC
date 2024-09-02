@@ -132,7 +132,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
            
         }
 
-        private async Task<string> SaveFileAsync(IFormFile file)
+        public async Task<string> SaveFileAsync(IFormFile file)
         {
             var uploads = Path.Combine("wwwroot", "images");
             if (!Directory.Exists(uploads))
@@ -153,12 +153,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             var book = await _context.Books.FindAsync(id);
             if (book == null) return null;
 
-            string coverImageUrl = null;
-            if (bookRequest.CoverImageFile != null && bookRequest.CoverImageFile.Length > 0)
-            {
-                coverImageUrl = await SaveFileAsync(bookRequest.CoverImageFile);
-            }
-
             book.Title = bookRequest.Title;
             book.Description = bookRequest.Description;
             book.ISBN = bookRequest.ISBN;
@@ -167,10 +161,15 @@ namespace OnlineBookStoreMVC.Implementation.Services
             book.Price = bookRequest.Price;
             book.AuthorId = bookRequest.AuthorId;
             book.CategoryId = bookRequest.CategoryId;
-            book.CoverImageUrl = coverImageUrl;
             book.Pages = bookRequest.Pages;
             book.Language = bookRequest.Language;
 
+            if (bookRequest.CoverImageFile != null && bookRequest.CoverImageFile.Length > 0)
+            {
+                book.CoverImageUrl = await SaveFileAsync(bookRequest.CoverImageFile);
+            }
+
+            _context.Books.Update(book);
             await _context.SaveChangesAsync();
 
             return new BookDto
@@ -182,13 +181,13 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 Publisher = book.Publisher,
                 PublicationDate = book.PublicationDate,
                 Price = book.Price,
-                AuthorName = book.Author.Name,
-                CategoryName = book.Category.Name,
                 CoverImageUrl = book.CoverImageUrl,
                 Pages = book.Pages,
                 Language = book.Language
             };
         }
+
+
 
         public async Task<bool> DeleteBookAsync(Guid id)
         {

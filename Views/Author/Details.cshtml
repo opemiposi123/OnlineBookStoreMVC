@@ -1,30 +1,29 @@
 ﻿@model OnlineBookStoreMVC.DTOs.AuthorDto
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Author Details";
 }
 
-<h1>Details</h1>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="text-center text-primary">Author Details</h1>
+                    <hr />
+                    <dl class="row">
+                        <dt class="col-sm-4 font-weight-bold">Name</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
 
-<div>
-    <h4>Author</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            Name
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class="col-sm-2">
-            Biography
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Biography)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                        <dt class="col-sm-4 font-weight-bold">Biography</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Biography)</dd>
+                    </dl>
+                </div>
+                <div class="card-footer text-end">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2">Edit</a>
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

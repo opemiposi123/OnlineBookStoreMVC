@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Entities;
 using OnlineBookStoreMVC.Implementation.Interface;
@@ -6,6 +7,7 @@ using OnlineBookStoreMVC.Models.RequestModels;
 
 namespace OnlineBookStoreMVC.Implementation.Services
 {
+    [Authorize]
     public class OrderService : IOrderService
     {
         private readonly ApplicationDbContext _context;
@@ -211,6 +213,18 @@ namespace OnlineBookStoreMVC.Implementation.Services
             };
         }
 
+        public async Task<bool> DeleteOrderAsync(Guid id)
+        {
+            var order = await _context.Orders.Include(o => o.OrderItems)
+                                             .FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null) return false;
+
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
 
         public async Task<OrderSummaryDto> GetOrderSummaryAsync(string userId)
         {
@@ -220,6 +234,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             return new OrderSummaryDto
             {
                 ShoppingCart = cart ?? new ShoppingCartDto(),
+                UserId = userId,
                 Address = address != null ? new AddressDto
                 {
                     FullName = address.FullName,
@@ -230,7 +245,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
                     State = address.State,
                     PostalCode = address.PostalCode,
                     Country = address.Country
-                } : new AddressDto() // Provide a default AddressDto or handle accordingly
+                } : new AddressDto()
             };
         }
 
@@ -255,15 +270,14 @@ namespace OnlineBookStoreMVC.Implementation.Services
                         Quantity = oi.Quantity,
                         Price = oi.UnitPrice
                     }).ToList(),
-                   // TotalPrice = o.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice)
                 },
                 Address = new AddressDto
                 {
                     FullName = o.Address.FullName,
                     Email = o.Address.Email,
                     PhoneNumber = o.Address.PhoneNumber,
-                    // Add other address fields as needed
-                }
+                },
+                UserId = userId,
             }).ToList();
 
             return orderSummaries;
@@ -298,9 +312,10 @@ namespace OnlineBookStoreMVC.Implementation.Services
                         BookId = item.BookId,
                         Quantity = item.Quantity,
                         UnitPrice = item.Price
-                    }).ToList() ?? new List<OrderItem>(), // Use an empty list if ShoppingCartItems is null
+                    }).ToList() ?? new List<OrderItem>(),
                     Address = new Address
                     {
+                        UserId = orderSummary.UserId,
                         FullName = orderSummary.Address.FullName,
                         Email = orderSummary.Address.Email,
                         PhoneNumber = orderSummary.Address.PhoneNumber,
@@ -315,6 +330,8 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
+                //await _shoppingCartService.ClearCartAsync(orderSummary.UserId);
+
                 return new OrderDto
                 {
                     Id = order.Id,
@@ -325,7 +342,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
                     {
                         Id = oi.Id,
                         BookId = oi.BookId,
-                        BookTitle = oi.Book?.Title, // Use ?. to safely access Book.Title
+                        BookTitle = oi.Book?.Title,
                         Quantity = oi.Quantity,
                         UnitPrice = oi.UnitPrice
                     }).ToList()
@@ -333,7 +350,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
             catch (Exception ex)
             {
-                // Log the exception
                 throw;
             }
         }

@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Entities;
 using OnlineBookStoreMVC.Implementation.Interface;
 
 namespace OnlineBookStoreMVC.Implementation.Services
 {
+    [Authorize]
     public class ShoppingCartService : IShoppingCartService
     {
         private readonly ApplicationDbContext _context;

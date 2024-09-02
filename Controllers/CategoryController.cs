@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
@@ -9,10 +10,12 @@ namespace OnlineBookStoreMVC.Controllers
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
+        private readonly INotyfService _notyf;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoryController(ICategoryService categoryService,INotyfService notyf)
         {
             _categoryService = categoryService;
+            _notyf = notyf;
         }
 
         // GET: Categories
@@ -42,12 +45,12 @@ namespace OnlineBookStoreMVC.Controllers
 
         // POST: Categories/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name")] CategoryRequestModel categoryRequest)
+        public async Task<IActionResult> Create(CategoryRequestModel categoryRequest)
         {
             if (ModelState.IsValid)
             {
                 var category = await _categoryService.CreateCategoryAsync(categoryRequest);
+                _notyf.Success("Category Created Succesfully");
                 return RedirectToAction(nameof(Index));
             }
             return View(categoryRequest);
@@ -71,12 +74,12 @@ namespace OnlineBookStoreMVC.Controllers
 
         // POST: Categories/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Name")] CategoryRequestModel categoryRequest)
+        public async Task<IActionResult> Edit(Guid id,CategoryRequestModel categoryRequest)
         {
             if (ModelState.IsValid)
             {
                 var updatedCategory = await _categoryService.UpdateCategoryAsync(id, categoryRequest);
+                _notyf.Success("Category Updated Succesfully");
                 if (updatedCategory == null)
                 {
                     return NotFound();
@@ -86,23 +89,11 @@ namespace OnlineBookStoreMVC.Controllers
             return View(categoryRequest);
         }
 
-        // GET: Categories/Delete/5
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var category = await _categoryService.GetCategoryByIdAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            return View(category);
-        }
-
-        // POST: Categories/Delete/5
-        [HttpPost("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        [HttpGet("Delete")]
+        public async Task<IActionResult> DeleteCategory(Guid id)
         {
             var success = await _categoryService.DeleteCategoryAsync(id);
+            _notyf.Success("Category Deleted Succesfully");
             if (!success)
             {
                 return NotFound();
