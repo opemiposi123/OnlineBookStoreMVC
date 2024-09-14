@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<ForgotPasswordCode> ForgotPasswordCodes { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Payment> Payments { get; set; }
+    public DbSet<Delivery> Deliveries { get; set; } 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

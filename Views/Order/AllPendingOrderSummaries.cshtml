@@ -1,0 +1,50 @@
+﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.OrderSummaryDto>
+
+@{
+    ViewData["Title"] = "Pending Orders";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (Model.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total Price</th>
+                <th>Shipping Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var orderSummary in Model)
+            {
+                foreach (var item in orderSummary.ShoppingCart.ShoppingCartItems)
+                {
+                    <tr>
+                        <td>@item.BookTitle</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Price.ToString("N2")</td>
+                        <td>@(item.Quantity * item.Price).ToString("N2")</td>
+                        <td>
+                            @orderSummary.Address.FullName<br />
+                            @orderSummary.Address.Email<br />
+                            @orderSummary.Address.PhoneNumber
+                        </td>
+                        <td>
+                            <!-- Optionally add more actions like cancel order, view details, etc. -->
+                            <a asp-action="OrderDetails" asp-route-id="@orderSummary.Id" class="btn btn-primary">View Order Details</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No pending orders available.</p>
+}

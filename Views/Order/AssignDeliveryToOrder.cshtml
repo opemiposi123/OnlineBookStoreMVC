@@ -1,0 +1,26 @@
+﻿@model OnlineBookStoreMVC.DTOs.OrderDto
+@{
+    ViewData["Title"] = "Assign Delivery";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="AssignDeliveryToOrderAsync" method="post">
+    <input type="hidden" name="orderId" value="@Model" />
+
+    <div class="form-group">
+        <label asp-for="DeliveryId" class="control-label">Select Delivery</label>
+        <select asp-for="DeliveryId" asp-items="ViewBag.Deliveries" class="form-control">
+            <option value="">-- Select a Delivery --</option>
+        </select>
+        <span asp-validation-for="DeliveryId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Assign Delivery</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

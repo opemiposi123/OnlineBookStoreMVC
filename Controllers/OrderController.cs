@@ -4,6 +4,8 @@ using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 using System.Security.Claims;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using OnlineBookStoreMVC.Implementation.Services;
 
 namespace OnlineBookStoreMVC.Controllers
 {
@@ -12,14 +14,19 @@ namespace OnlineBookStoreMVC.Controllers
     {
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderService _orderService;
+        private readonly IDeliveryService _deliveryService;
         private readonly PaymentService _paymentService;
+        private readonly INotyfService _notyf; // Inject NotyfService
 
-        public OrderController(IOrderService orderService, IShoppingCartService shoppingCartService, PaymentService paymentService)
+        public OrderController(IOrderService orderService, IShoppingCartService shoppingCartService, PaymentService paymentService, IDeliveryService deliveryService, INotyfService notyf)
         {
             _orderService = orderService;
             _shoppingCartService = shoppingCartService;
             _paymentService = paymentService;
+            _deliveryService = deliveryService;
+            _notyf = notyf; // Initialize NotyfService
         }
+
         public async Task<IActionResult> OrderDetails(Guid id)
         {
             var order = await _orderService.GetOrderDetailsAsync(id);
@@ -30,9 +37,7 @@ namespace OnlineBookStoreMVC.Controllers
         public async Task<IActionResult> OrderSummary()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             var orderSummary = await _orderService.GetOrderSummaryAsync(userId);
-
             return View("OrderSummary", orderSummary);
         }
 
@@ -40,9 +45,7 @@ namespace OnlineBookStoreMVC.Controllers
         public async Task<IActionResult> OrderSummaries()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             var orderSummaries = await _orderService.GetAllOrderSummariesAsync(userId);
-
             return View(orderSummaries);
         }
 
@@ -64,6 +67,7 @@ namespace OnlineBookStoreMVC.Controllers
             if (ModelState.IsValid)
             {
                 var order = await _orderService.CreateOrderAsync(orderRequest);
+                _notyf.Success("Order created successfully.");
                 return RedirectToAction(nameof(CheckoutComplete), new { userId = order.UserId });
             }
             return View(orderRequest);
@@ -96,15 +100,13 @@ namespace OnlineBookStoreMVC.Controllers
                 return NotFound();
             }
 
-            TempData["SuccessMessage"] = "Order deleted successfully.";
+            _notyf.Success("Order deleted successfully.");
             return RedirectToAction(nameof(Index));
         }
-
 
         public async Task<IActionResult> OrderConfirmation(Guid orderId)
         {
             var order = await _orderService.GetOrderDetailsAsync(orderId);
-
             if (order == null)
             {
                 return RedirectToAction("Index", "Home");
@@ -132,68 +134,37 @@ namespace OnlineBookStoreMVC.Controllers
 
             if (paymentResponse == null || paymentResponse.Data == null || string.IsNullOrEmpty(paymentResponse.Data.AuthorizationUrl))
             {
+                _notyf.Error("Failed to initialize payment. Please try again.");
                 throw new InvalidOperationException($"The AuthorizationUrl is missing or invalid. Error: {paymentResponse?.Message}");
             }
 
             await _shoppingCartService.ClearCartAsync(userId);
-
+            _notyf.Success("Order placed successfully. Redirecting to payment...");
             return Redirect(paymentResponse.Data.AuthorizationUrl);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> AllPendingOrderSummaries()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var orderSummaries = await _orderService.GetAllOrderPendingSummariesAsync(userId);
+            return View(orderSummaries);
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> PlaceOrder(OrderSummaryDto orderSummary)
-        //{
-        //    var order = await _orderService.PlaceOrderAsync(orderSummary);
+        [HttpGet]
+        public async Task<IActionResult> AssignDeliveryToOrder(Guid orderId)
+        {
+            ViewBag.Deliveries = await _deliveryService.GetDeliverySelectList();
+            return View(); 
+        }
 
-        //    var email = User.FindFirstValue(ClaimTypes.Email);
 
-        //    var callbackUrl = Url.Action("VerifyPayment", "Order", new { reference = order.Id.ToString() }, Request.Scheme);
-
-        //    var paymentResponse = await _paymentService.InitializePaymentAsync(
-        //        orderSummary.OrderTotal,
-        //        email,
-        //        callbackUrl,
-        //        order.Id.ToString()
-        //    );
-
-        //    if (paymentResponse == null || paymentResponse.Data == null || string.IsNullOrEmpty(paymentResponse.Data.AuthorizationUrl))
-        //    {
-        //        throw new InvalidOperationException($"The AuthorizationUrl is missing or invalid. Error: {paymentResponse?.Message}");
-        //    }
-        //    TempData["OrderSummary"] = JsonConvert.SerializeObject(orderSummary);
-
-        //    return Redirect(paymentResponse.Data.AuthorizationUrl);
-        //}
-
-        //[HttpGet]
-        //public async Task<IActionResult> VerifyPayment(string reference)
-        //{
-        //    // Verify the payment with Paystack
-        //    var verifyResponse = await _paymentService.VerifyPaymentAsync(reference);
-
-        //    //if (!verifyResponse.Status || verifyResponse.Data.Status != "success")
-        //    //{
-        //    //    ModelState.AddModelError("", "Payment verification failed. Please try again.");
-        //    //    return RedirectToAction("OrderSummary");
-        //    //}
-
-        //    // Retrieve the orderSummary from TempData
-        //    var orderSummaryJson = TempData["OrderSummary"] as string;
-        //    var orderSummary = JsonConvert.DeserializeObject<OrderSummaryDto>(orderSummaryJson);
-
-        //    //if (orderSummary == null)
-        //    //{
-        //    //    ModelState.AddModelError("", "Order summary could not be retrieved. Please try again.");
-        //    //    return RedirectToAction("OrderSummary");
-        //    //}
-
-        //    // Clear the shopping cart
-        //    //await _shoppingCartService.ClearCartAsync(User.Identity.Name);
-
-        //    // Redirect to the OrderConfirmation view after placing the order
-        //    return RedirectToAction("OrderConfirmation", new { orderId = orderSummary.OrderId });
-        //}
-
+        [HttpPost]
+        public async Task<IActionResult> AssignDeliveryToOrder(Guid orderId, Guid deliveryId)
+        {
+            var result = await _orderService.AssignDeliveryToOrderAsync(orderId, deliveryId);
+            _notyf.Success(result != null ? "Delivery assigned successfully." : "Failed to assign delivery. Please try again.");
+            return RedirectToAction(nameof(AllPendingOrderSummaries));
+        }
     }
 }

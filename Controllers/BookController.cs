@@ -1,13 +1,12 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 
 namespace OnlineBookStoreMVC.Controllers
 {
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin, SuperAdmin")]
     public class BookController : Controller
     {
         private readonly IBookService _bookService;
@@ -17,9 +16,9 @@ namespace OnlineBookStoreMVC.Controllers
         private readonly INotyfService _notyf;
 
         public BookController(IBookService bookService,
-                              IAuthorService authorService, 
+                              IAuthorService authorService,
                               IWebHostEnvironment webHostEnvironment,
-                              ICategoryService catgoryService, 
+                              ICategoryService catgoryService,
                               INotyfService notyfService)
         {
             _bookService = bookService;
@@ -29,15 +28,15 @@ namespace OnlineBookStoreMVC.Controllers
             _notyf = notyfService;
         }
 
-        [AllowAnonymous]
-        // GET: Books
+        // GET: Book
         public async Task<IActionResult> Index()
         {
             var books = await _bookService.GetAllBooksAsync();
             return View(books);
         }
 
-        // GET: Books/Details/5
+        // GET: Book/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
@@ -45,10 +44,10 @@ namespace OnlineBookStoreMVC.Controllers
             {
                 return NotFound();
             }
-            return View(book);
+            return Json(book);
         }
 
-        // GET: Books/Create
+        // GET: Book/Create
         public async Task<IActionResult> Create()
         {
             ViewBag.Authors = await _authorService.GetAuthorSelectList();
@@ -56,23 +55,47 @@ namespace OnlineBookStoreMVC.Controllers
             return View();
         }
 
-        // POST: Books/Create
+        // POST: Book/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BookRequestModel bookRequest)
         {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Authors = await _authorService.GetAuthorSelectList();
+                ViewBag.Categories = await _categoryService.GetCategorySelectList();
+                return View(bookRequest);
+            }
 
             var book = await _bookService.CreateBookAsync(bookRequest);
-            _notyf.Success("Book Created Succesfully");
-            return RedirectToAction(nameof(Index), new { id = book.Id });
-
-            return View(bookRequest);
+            _notyf.Success("Book Created Successfully");
+            return RedirectToAction(nameof(Index));
         }
 
+        //// GET: Books/Create
+        //public async Task<IActionResult> Create()
+        //{
+        //    ViewBag.Authors = await _authorService.GetAuthorSelectList();
+        //    ViewBag.Categories = await _categoryService.GetCategorySelectList();
+        //    return View();
+        //}
+
+        //// POST: Books/Create
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create(BookRequestModel bookRequest)
+        //{
+
+        //    var book = await _bookService.CreateBookAsync(bookRequest);
+        //    _notyf.Success("Book Created Succesfully");
+        //    return RedirectToAction(nameof(Index), new { id = book.Id });
+
+        //    return View(bookRequest);
+        //}
+
+        // GET: Book/Edit/5
         public async Task<IActionResult> Edit(Guid id)
         {
-            ViewBag.Authors = await _authorService.GetAuthorSelectList();
-            ViewBag.Categories = await _categoryService.GetCategorySelectList();
             var book = await _bookService.GetBookByIdAsync(id);
             if (book == null)
             {
@@ -89,58 +112,35 @@ namespace OnlineBookStoreMVC.Controllers
                 Price = book.Price,
                 AuthorId = book.AuthorId,
                 CategoryId = book.CategoryId,
+                CoverImageUrl = book.CoverImageUrl,
                 Pages = book.Pages,
                 Language = book.Language,
-                CoverImageUrl = book.CoverImageUrl
+                TotalQuantity = book.TotalQuantity
             };
 
             return View(bookRequest);
         }
 
+        // POST: Book/Edit/5
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, BookRequestModel bookRequest)
         {
-            var existingBook = await _bookService.GetBookByIdAsync(id);
-            if (existingBook == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                await _bookService.UpdateBookAsync(id, bookRequest);
+                _notyf.Success("Book Updated Succesfully");
+                return RedirectToAction(nameof(Index));
             }
 
-            existingBook.Title = bookRequest.Title;
-            existingBook.Description = bookRequest.Description;
-            existingBook.ISBN = bookRequest.ISBN;
-            existingBook.Publisher = bookRequest.Publisher;
-            existingBook.PublicationDate = bookRequest.PublicationDate;
-            existingBook.Price = bookRequest.Price;
-            existingBook.AuthorId = bookRequest.AuthorId;
-            existingBook.CategoryId = bookRequest.CategoryId;
-            existingBook.Pages = bookRequest.Pages;
-            existingBook.Language = bookRequest.Language;
-
-            // Handle Cover Image
-            if (bookRequest.CoverImageFile != null && bookRequest.CoverImageFile.Length > 0)
-            {
-                existingBook.CoverImageUrl = await _bookService.SaveFileAsync(bookRequest.CoverImageFile);
-            }
-
-            await _bookService.UpdateBookAsync(id, bookRequest);
-            _notyf.Success("Book Updated Succesfully");
-
-            return RedirectToAction(nameof(Index));
+            return View(bookRequest);
         }
 
-        [HttpGet("DeleteBook")]
+        [HttpPost]
         public async Task<IActionResult> DeleteBook(Guid id)
         {
-            var success = await _bookService.DeleteBookAsync(id);
-            if (!success)
-            {
-                _notyf.Success("Coud'nt Delete Book mate");
-            }
-            _notyf.Success("Book Deleted Successfully mate");
-            return RedirectToAction("Index");
+            await _bookService.DeleteBookAsync(id);
+            return RedirectToAction(nameof(Index));
         }
-
-
     }
 }

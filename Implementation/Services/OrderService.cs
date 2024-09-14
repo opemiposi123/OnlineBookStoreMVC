@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Entities;
+using OnlineBookStoreMVC.Enums;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 
@@ -12,6 +13,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IShoppingCartService _emailSService;
 
         public OrderService(ApplicationDbContext context, IShoppingCartService shoppingCartService)
         {
@@ -283,22 +285,51 @@ namespace OnlineBookStoreMVC.Implementation.Services
             return orderSummaries;
         }
 
+        public async Task<List<OrderSummaryDto>> GetAllOrderPendingSummariesAsync(string userId)
+        {
+            // Fetch all pending orders for the specified user
+            var pendingOrders = await _context.Orders
+                .Where(o => o.UserId == userId && o.OrderStatus == OrderStatus.Pendind)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book)
+                .Include(o => o.Address)
+                .ToListAsync();
+
+            // Map each pending order to an OrderSummaryDto
+            var orderSummaries = pendingOrders.Select(o => new OrderSummaryDto
+            {
+                ShoppingCart = new ShoppingCartDto
+                {
+                    ShoppingCartItems = o.OrderItems.Select(oi => new ShoppingCartItemDto
+                    {
+                        BookId = oi.BookId,
+                        BookTitle = oi.Book.Title,
+                        Quantity = oi.Quantity,
+                        Price = oi.UnitPrice
+                    }).ToList(),
+                },
+                Address = new AddressDto
+                {
+                    FullName = o.Address.FullName,
+                    Email = o.Address.Email,
+                    PhoneNumber = o.Address.PhoneNumber,
+                    Street = o.Address.Street,
+                    City = o.Address.City,
+                    State = o.Address.State,
+                    PostalCode = o.Address.PostalCode,
+                    Country = o.Address.Country
+                },
+                UserId = userId,
+            }).ToList();
+
+            return orderSummaries;
+        }
+
         public async Task<OrderDto> PlaceOrderAsync(OrderSummaryDto orderSummary)
         {
-            if (orderSummary == null)
-            {
-                throw new ArgumentNullException(nameof(orderSummary), "Order summary cannot be null.");
-            }
-
-            if (orderSummary.ShoppingCart == null)
-            {
-                throw new ArgumentNullException(nameof(orderSummary.ShoppingCart), "Shopping cart cannot be null.");
-            }
-
-            if (orderSummary.Address == null)
-            {
-                throw new ArgumentNullException(nameof(orderSummary.Address), "Address cannot be null.");
-            }
+            if (orderSummary == null) throw new ArgumentNullException(nameof(orderSummary), "Order summary cannot be null.");
+            if (orderSummary.ShoppingCart == null) throw new ArgumentNullException(nameof(orderSummary.ShoppingCart), "Shopping cart cannot be null.");
+            if (orderSummary.Address == null) throw new ArgumentNullException(nameof(orderSummary.Address), "Address cannot be null.");
 
             try
             {
@@ -307,6 +338,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
                     UserId = orderSummary.UserId,
                     OrderDate = DateTime.UtcNow,
                     TotalAmount = orderSummary.OrderTotal,
+                    OrderStatus = OrderStatus.Pendind,
                     OrderItems = orderSummary.ShoppingCart.ShoppingCartItems?.Select(item => new OrderItem
                     {
                         BookId = item.BookId,
@@ -330,8 +362,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                //await _shoppingCartService.ClearCartAsync(orderSummary.UserId);
-
                 return new OrderDto
                 {
                     Id = order.Id,
@@ -354,6 +384,52 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
         }
 
-    }
+        public async Task<OrderDto> AssignDeliveryToOrderAsync(Guid orderId, Guid deliveryId)
+        {
+            var order = await _context.Orders.Include(o => o.Delivery)
+                                             .FirstOrDefaultAsync(o => o.Id == orderId);
 
+            if (order == null)
+            {
+                throw new Exception("Order not found");
+            }
+
+            var delivery = await _context.Deliveries.FirstOrDefaultAsync(d => d.Id == deliveryId);
+
+            if (delivery == null)
+            {
+                throw new Exception("Delivery not found");
+            }
+            order.DeliveryId = delivery.Id;
+            order.OrderStatus = OrderStatus.Shipping;
+            order.Delivery = delivery;
+
+            delivery.DeliveryStatus = DeliveryStatus.InTransit;
+
+           
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+            return new OrderDto
+            {
+                Id = order.Id,
+                UserId = order.UserId,
+                UserName = order.User?.UserName ?? "Unknown User",
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                OrderStatus = order.OrderStatus,
+                DeliveryId = delivery.Id,
+                DeliveryEmail = delivery.Email,
+                DeliveryName = $"{delivery.FirstName} {delivery.LastName}",
+                DeliveryPhoneNumber = delivery.PhoneNumber,
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    BookId = oi.BookId,
+                    BookTitle = oi.Book?.Title ?? "Unknown Book",
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice
+                }).ToList()
+            };
+        }
+    }
 }

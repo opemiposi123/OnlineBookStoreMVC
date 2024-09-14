@@ -9,7 +9,7 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<BookDto> GetBookByIdAsync(Guid id);
         Task<BookDto> CreateBookAsync(BookRequestModel bookRequest);
         Task<BookDto> UpdateBookAsync(Guid id, BookRequestModel bookRequest);
-        Task<bool> DeleteBookAsync(Guid id);
+        Task DeleteBookAsync(Guid id);
         Task<string> SaveFileAsync(IFormFile file);
     }
 }

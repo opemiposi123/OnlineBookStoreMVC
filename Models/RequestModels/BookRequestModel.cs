@@ -12,9 +12,10 @@ namespace OnlineBookStoreMVC.Models.RequestModels
         public decimal Price { get; set; }
         public Guid AuthorId { get; set; }
         public Guid CategoryId { get; set; }
-        public IFormFile CoverImageFile { get; set; } // For uploading a new image
-        public string CoverImageUrl { get; set; } // To hold the existing image URL
+        public IFormFile CoverImageFile { get; set; }
+        public string CoverImageUrl { get; set; }
         public int Pages { get; set; }
         public string Language { get; set; }
+        public int TotalQuantity { get; set; }
     }
 }

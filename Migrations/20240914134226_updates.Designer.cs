@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace OnlineBookStoreMVC.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240914134226_updates")]
+    partial class updates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -353,7 +356,7 @@ namespace OnlineBookStoreMVC.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TransportationType")
+                    b.Property<int>("TranspotationType")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -407,14 +410,8 @@ namespace OnlineBookStoreMVC.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("DeliveryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("OrderStatus")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18, 2)");
@@ -429,8 +426,6 @@ namespace OnlineBookStoreMVC.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
-
-                    b.HasIndex("DeliveryId");
 
                     b.HasIndex("UserId");
 
@@ -772,10 +767,6 @@ namespace OnlineBookStoreMVC.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("OnlineBookStoreMVC.Entities.Delivery", "Delivery")
-                        .WithMany()
-                        .HasForeignKey("DeliveryId");
-
                     b.HasOne("OnlineBookStoreMVC.Entities.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
@@ -783,8 +774,6 @@ namespace OnlineBookStoreMVC.Migrations
                         .IsRequired();
 
                     b.Navigation("Address");
-
-                    b.Navigation("Delivery");
 
                     b.Navigation("User");
                 });

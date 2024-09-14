@@ -88,16 +88,25 @@ namespace OnlineBookStoreMVC.Implementation.Services
             return true;
         }
 
+        //public async Task<IEnumerable<SelectListItem>> GetAuthorSelectList()
+        //{
+        //    var authors = await GetAllAuthorsAsync();
+        //    var authorList = authors.Select(d => new SelectListItem
+        //    {
+        //        Value = d.Id.ToString(),
+        //        Text = d.Name
+        //    });
+
+        //    return new SelectList(authorList, "Value", "Text");
+        //}
         public async Task<IEnumerable<SelectListItem>> GetAuthorSelectList()
         {
-            var authors = await GetAllAuthorsAsync();
-            var authorList = authors.Select(d => new SelectListItem
+            var authors = await _context.Authors.ToListAsync();
+            return authors.Select(d => new SelectListItem
             {
                 Value = d.Id.ToString(),
-                Text = d.Name
+                Text = d.Name // Or any other property you want to display
             });
-
-            return new SelectList(authorList, "Value", "Text");
         }
     }
 

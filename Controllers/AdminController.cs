@@ -28,8 +28,6 @@ namespace OnlineBookStoreMVC.Controllers
 
             ViewBag.UserId = user.Id;
             ViewBag.Username = user.Username;
-
-            // Populate roles from enum
             ViewBag.Roles = Enum.GetValues(typeof(Role))
                                .Cast<Role>()
                                .Select(r => new SelectListItem
@@ -54,8 +52,6 @@ namespace OnlineBookStoreMVC.Controllers
             if (!result.Success)
             {
                 ModelState.AddModelError(string.Empty, result.Message);
-
-                // Repopulate roles for the dropdown in case of error
                 ViewBag.Roles = Enum.GetValues(typeof(Role))
                                    .Cast<Role>()
                                    .Select(r => new SelectListItem
@@ -70,6 +66,7 @@ namespace OnlineBookStoreMVC.Controllers
 
             return RedirectToAction("Index", "User");
         }
+
 
     }
 }

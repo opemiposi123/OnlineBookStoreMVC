@@ -12,52 +12,34 @@
                     <h1 class="text-center text-primary">Create Book</h1>
                     <hr />
                     <form asp-action="Create" enctype="multipart/form-data">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Title" class="form-label">Book Title</label>
-                                <input asp-for="Title" class="form-control" placeholder="Enter book title" />
-                                <span asp-validation-for="Title" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ISBN" class="form-label">ISBN</label>
-                                <input asp-for="ISBN" class="form-control" placeholder="Enter ISBN" />
-                                <span asp-validation-for="ISBN" class="text-danger"></span>
-                            </div>
+                        <div class="form-group mb-3">
+                            <label for="Title">Title</label>
+                            <input type="text" class="form-control" id="Title" name="Title" required />
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Description" class="form-label">Description</label>
-                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter book description"></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
+                        <div class="form-group mb-3">
+                            <label for="Description">Description</label>
+                            <textarea class="form-control" id="Description" name="Description" rows="4" required></textarea>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Publisher" class="form-label">Publisher</label>
-                                <input asp-for="Publisher" class="form-control" placeholder="Enter publisher" />
-                                <span asp-validation-for="Publisher" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="PublicationDate" class="form-label">Publication Date</label>
-                                <input asp-for="PublicationDate" class="form-control" type="date" />
-                                <span asp-validation-for="PublicationDate" class="text-danger"></span>
-                            </div>
+                        <div class="form-group mb-3">
+                            <label for="ISBN">ISBN</label>
+                            <input type="text" class="form-control" id="ISBN" name="ISBN" required />
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Price" class="form-label">Price</label>
-                                <input asp-for="Price" class="form-control" placeholder="Enter price" />
-                                <span asp-validation-for="Price" class="text-danger"></span>
-                            </div>
+                        <div class="form-group mb-3">
+                            <label for="Publisher">Publisher</label>
+                            <input type="text" class="form-control" id="Publisher" name="Publisher" required />
+                        </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Pages" class="form-label">Pages</label>
-                                <input asp-for="Pages" class="form-control" placeholder="Enter number of pages" />
-                                <span asp-validation-for="Pages" class="text-danger"></span>
-                            </div>
+                        <div class="form-group mb-3">
+                            <label for="PublicationDate">Publication Date</label>
+                            <input type="date" class="form-control" id="PublicationDate" name="PublicationDate" required />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Price">Price (₦)</label>
+                            <input type="number" class="form-control" id="Price" name="Price" step="0.01" required />
                         </div>
 
                         <div class="row">
@@ -78,21 +60,29 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="CoverImageFile" class="form-label">Cover Image</label>
-                            <input asp-for="CoverImageFile" class="form-control" type="file" />
-                            <span asp-validation-for="CoverImageFile" class="text-danger"></span>
+             
+
+                        <div class="form-group mb-3">
+                            <label for="CoverImageFile">Cover Image</label>
+                            <input type="file" class="form-control" id="CoverImageFile" name="CoverImageFile" />
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Language" class="form-label">Language</label>
-                            <input asp-for="Language" class="form-control" placeholder="Enter language" />
-                            <span asp-validation-for="Language" class="text-danger"></span>
+                        <div class="form-group mb-3">
+                            <label for="Pages">Number of Pages</label>
+                            <input type="number" class="form-control" id="Pages" name="Pages" required />
                         </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg shadow-sm">Create Book</button>
+                        <div class="form-group mb-3">
+                            <label for="Language">Language</label>
+                            <input type="text" class="form-control" id="Language" name="Language" required />
                         </div>
+
+                        <div class="form-group mb-3">
+                            <label for="TotalQuantity">Total Quantity</label>
+                            <input type="number" class="form-control" id="TotalQuantity" name="TotalQuantity" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Create Book</button>
                     </form>
                 </div>
             </div>

@@ -1,0 +1,47 @@
+﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.DeliveryDto>
+
+@{
+    ViewData["Title"] = "Deliveries";
+}
+
+<div class="container my-4">
+    <h2 class="text-center mb-4">Deliveries</h2>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-action="Create" class="btn btn-success">Create New Delivery</a> 
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>FirstName</th>
+                    <th>LastName</th> 
+                    <th>PhoneNumber</th>
+                    <th>Gender</th>
+                    <th>Email</th>
+                    <th>Transportation Type</th> 
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.FirstName</td>
+                        <td>@item.LastName</td>
+                        <td>@item.PhoneNumber</td>
+                        <td>@item.Gender</td>
+                        <td>@item.Email</td>
+                        <td>@item.TransportationType</td>
+                        <td class="text-center">
+                            <a class="btn btn-warning btn-sm mx-1" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                            <a class="btn btn-info btn-sm mx-1" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                            <a class="btn btn-danger btn-sm mx-1" asp-action="DeleteDelvery" asp-route-id="@item.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

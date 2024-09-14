@@ -213,9 +213,9 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 _logger.LogWarning($"User with ID {userId} not found.");
                 return new Status
                 {
-                    Success = false,
-                    Message = "User not found"
-                };
+                    Success = false,  
+                    Message = "User not found" 
+                };   
             }
 
             var currentRoles = await _userManager.GetRolesAsync(user);
