@@ -13,7 +13,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IShoppingCartService _shoppingCartService;
-        private readonly IShoppingCartService _emailSService;
+        //private readonly IShoppingCartService _emailSService;
 
         public OrderService(ApplicationDbContext context, IShoppingCartService shoppingCartService)
         {
@@ -40,7 +40,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // Load the Book data for the order items
                 foreach (var orderItem in order.OrderItems)
                 {
                     orderItem.Book = await _context.Books.FindAsync(orderItem.BookId);
@@ -68,7 +67,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
             catch (Exception ex)
             {
-                // Log exception (ex) for debugging
                 throw;
             }
         }
@@ -287,15 +285,13 @@ namespace OnlineBookStoreMVC.Implementation.Services
 
         public async Task<List<OrderSummaryDto>> GetAllOrderPendingSummariesAsync(string userId)
         {
-            // Fetch all pending orders for the specified user
             var pendingOrders = await _context.Orders
-                .Where(o => o.UserId == userId && o.OrderStatus == OrderStatus.Pendind)
+                .Where(o => o.UserId == userId && o.OrderStatus == OrderStatus.Pending)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Book)
                 .Include(o => o.Address)
                 .ToListAsync();
 
-            // Map each pending order to an OrderSummaryDto
             var orderSummaries = pendingOrders.Select(o => new OrderSummaryDto
             {
                 ShoppingCart = new ShoppingCartDto
@@ -338,7 +334,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
                     UserId = orderSummary.UserId,
                     OrderDate = DateTime.UtcNow,
                     TotalAmount = orderSummary.OrderTotal,
-                    OrderStatus = OrderStatus.Pendind,
+                    OrderStatus = OrderStatus.Pending,
                     OrderItems = orderSummary.ShoppingCart.ShoppingCartItems?.Select(item => new OrderItem
                     {
                         BookId = item.BookId,

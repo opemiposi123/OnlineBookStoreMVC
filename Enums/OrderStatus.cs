@@ -2,7 +2,7 @@
 {
     public enum OrderStatus
     {
-        Pendind = 1,
+        Pending = 1,
         Shipping,
         Received
     }

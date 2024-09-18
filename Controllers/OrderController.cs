@@ -16,7 +16,7 @@ namespace OnlineBookStoreMVC.Controllers
         private readonly IOrderService _orderService;
         private readonly IDeliveryService _deliveryService;
         private readonly PaymentService _paymentService;
-        private readonly INotyfService _notyf; // Inject NotyfService
+        private readonly INotyfService _notyf;
 
         public OrderController(IOrderService orderService, IShoppingCartService shoppingCartService, PaymentService paymentService, IDeliveryService deliveryService, INotyfService notyf)
         {
@@ -24,7 +24,7 @@ namespace OnlineBookStoreMVC.Controllers
             _shoppingCartService = shoppingCartService;
             _paymentService = paymentService;
             _deliveryService = deliveryService;
-            _notyf = notyf; // Initialize NotyfService
+            _notyf = notyf;
         }
 
         public async Task<IActionResult> OrderDetails(Guid id)
@@ -79,6 +79,7 @@ namespace OnlineBookStoreMVC.Controllers
             var orders = await _orderService.GetAllOrdersAsync();
             return View(orders);
         }
+
 
         [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> UserOrders(string userId)
