@@ -1,6 +1,97 @@
 ﻿@model OnlineBookStoreMVC.Models.RequestModels.AddressRequestModel
 
-<div class="container my-4">
+<h2 class="text-center mb-4">Select an Address</h2>
+
+@if (ViewBag.Addresses != null && ((IEnumerable<OnlineBookStoreMVC.DTOs.AddressDto>)ViewBag.Addresses).Any())
+{
+    <div class="card p-4 shadow-sm">
+        <form asp-action="SelectAddress" method="post">
+            <label for="addressDropdown" class="form-label fw-bold">Choose an address:</label>
+            <select id="addressDropdown" name="addressId" class="form-select mb-3">
+                @foreach (var address in (IEnumerable<OnlineBookStoreMVC.DTOs.AddressDto>)ViewBag.Addresses)
+                {
+                    <option value="@address.Id">@address.Street, @address.City, @address.State</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-primary">Use this address</button>
+        </form>
+    </div>
+}
+else
+{
+    <p class="text-danger">No addresses found. Please add a new address.</p>
+}
+
+<hr class="my-4" />
+
+<h4 class="text-left mb-4">Shipping Address</h4>
+<form asp-action="InputAddress" method="post" class="card p-4 shadow-sm">
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="form-group">
+                <label asp-for="FullName" class="form-label fw-bold"></label>
+                <input asp-for="FullName" class="form-control" placeholder="Full Name" />
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="form-group">
+                <label asp-for="Email" class="form-label fw-bold"></label>
+                <input asp-for="Email" class="form-control" placeholder="Email" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="form-label fw-bold"></label>
+                <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" />
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="form-group">
+                <label asp-for="Street" class="form-label fw-bold"></label>
+                <input asp-for="Street" class="form-control" placeholder="Street Address" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="form-group">
+                <label asp-for="City" class="form-label fw-bold"></label>
+                <input asp-for="City" class="form-control" placeholder="City" />
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="form-group">
+                <label asp-for="State" class="form-label fw-bold"></label>
+                <input asp-for="State" class="form-control" placeholder="State" />
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="form-group">
+                <label asp-for="PostalCode" class="form-label fw-bold"></label>
+                <input asp-for="PostalCode" class="form-control" placeholder="Postal Code" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="form-group">
+                <label asp-for="Country" class="form-label fw-bold"></label>
+                <input asp-for="Country" class="form-control" placeholder="Country" />
+            </div>
+        </div>
+    </div>
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary btn-lg shadow-sm">Proceed</button>
+    </div>
+</form>
+
+
+
+
+
+@* <div class="container my-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm">
@@ -72,3 +163,4 @@
         </div>
     </div>
 </div>
+ *@

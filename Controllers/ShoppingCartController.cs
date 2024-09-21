@@ -12,13 +12,15 @@ namespace OnlineBookStoreMVC.Controllers
     {
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IAddressService _addressService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INotyfService _notyf;
 
-        public ShoppingCartController(IShoppingCartService shoppingCartService, IAddressService addressService, INotyfService notyfService)
+        public ShoppingCartController(IShoppingCartService shoppingCartService, IAddressService addressService, INotyfService notyfService, IHttpContextAccessor httpContextAccessor)
         {
             _shoppingCartService = shoppingCartService;
             _addressService = addressService;
             _notyf = notyfService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // GET: ShoppingCart/Index
@@ -92,23 +94,66 @@ namespace OnlineBookStoreMVC.Controllers
             return Json(new { Total = total });
         }
 
+        //[HttpGet]
+        //public IActionResult InputAddress()
+        //{
+        //    return View();
+        //}
+
+        //[HttpPost]
+        //public async Task<IActionResult> InputAddress(AddressRequestModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //        await _addressService.AddAddressAsync(model, userId);
+        //        _notyf.Success("Address has been successfully added.");
+        //        return RedirectToAction("OrderSummary", "Order");
+        //    }
+        //    return View(model);
+        //}
+
         [HttpGet]
-        public IActionResult InputAddress()
+        public async Task<IActionResult> InputAddress()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var uniqueAddresses = await _addressService.GetUniqueAddressesByUserIdAsync(userId);
+            ViewBag.Addresses = uniqueAddresses;
+
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> InputAddress(AddressRequestModel model)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             if (ModelState.IsValid)
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 await _addressService.AddAddressAsync(model, userId);
                 _notyf.Success("Address has been successfully added.");
                 return RedirectToAction("OrderSummary", "Order");
             }
+
+            var addresses = await _addressService.GetAllAddressesByUserIdAsync(userId);
+            ViewBag.Addresses = addresses;
+
             return View(model);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SelectAddress(Guid addressId)
+        {
+            var address = await _addressService.GetAddressByIdAsync(addressId);
+
+            if (address != null)
+            {
+                HttpContext.Session.SetString("SelectedAddressId", addressId.ToString());
+                return RedirectToAction("OrderSummary", "Order");
+            }
+
+            return RedirectToAction("InputAddress");
+        }
+
     }
 }

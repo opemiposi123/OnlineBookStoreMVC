@@ -1,11 +1,9 @@
 using AspNetCoreHero.ToastNotification;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using OnlineBookStoreMVC.Data;
 using OnlineBookStoreMVC.Entities;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Implementation.Services;
-using System.Net.Http;
 using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +21,7 @@ builder.Services.AddTransient<IAddressService, AddressService>();
 builder.Services.AddTransient<IDeliveryService, DeliveryService>();
 builder.Services.AddHttpClient<PaymentService>();
 
+// Configure Identity services
 builder.Services.AddIdentity<User, IdentityRole>(opt =>
 {
     opt.Password.RequiredLength = 5;
@@ -31,30 +30,40 @@ builder.Services.AddIdentity<User, IdentityRole>(opt =>
     opt.User.RequireUniqueEmail = true;
     opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromSeconds(10); // Lockout duration
     opt.Lockout.MaxFailedAccessAttempts = 5; // Number of failed attempts before lockout
-
-}).AddEntityFrameworkStores<ApplicationDbContext>()
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-
-
+// Configure Entity Framework Core
 var connectionString = builder.Configuration.GetConnectionString("OnlineBookStoreMVC");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+
+// Configure Email settings
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("SMTPConfig"));
 
+// Configure HTTP client for PaymentService
 builder.Services.AddHttpClient<PaymentService>(client =>
 {
     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "sk_test_8b4b66305adcb976e2a5ab541f5c440493c58f2a");
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 });
+
+// Configure session management
+builder.Services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20); // Set session timeout
+    options.Cookie.HttpOnly = true; // Make session cookie HTTP-only
+    options.Cookie.IsEssential = true; // Make the session cookie essential
+});
+
+// Configure Notyf for notifications
 builder.Services.AddNotyf(config =>
 {
-    config.DurationInSeconds = 6;
+    config.DurationInSeconds = 3;
     config.IsDismissable = true;
     config.Position = NotyfPosition.TopRight;
-}
-);
-
-
+});
 
 var app = builder.Build();
 
@@ -62,15 +71,17 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-await app.UseItToSeedSqlServer();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
+// Use session middleware
+app.UseSession();
+
+app.UseAuthentication(); // Make sure to add this before UseAuthorization
 app.UseAuthorization();
 
 app.MapControllerRoute(

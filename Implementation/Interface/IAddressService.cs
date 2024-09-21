@@ -7,6 +7,8 @@ namespace OnlineBookStoreMVC.Implementation.Interface
     {
         Task<AddressDto> AddAddressAsync(AddressRequestModel model, string userId);
         Task<AddressDto> GetAddressByUserIdAsync(string userId);
-        // Other address-related methods
+        Task<IEnumerable<AddressDto>> GetAllAddressesByUserIdAsync(string userId);
+        Task<AddressDto> GetAddressByIdAsync(Guid addressId);
+        Task<List<AddressDto>> GetUniqueAddressesByUserIdAsync(string userId);
     }
 }

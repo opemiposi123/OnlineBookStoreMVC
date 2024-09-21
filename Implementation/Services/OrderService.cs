@@ -13,7 +13,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IShoppingCartService _shoppingCartService;
-        //private readonly IShoppingCartService _emailSService;
 
         public OrderService(ApplicationDbContext context, IShoppingCartService shoppingCartService)
         {
@@ -225,11 +224,13 @@ namespace OnlineBookStoreMVC.Implementation.Services
             return true;
         }
 
-
         public async Task<OrderSummaryDto> GetOrderSummaryAsync(string userId)
         {
             var cart = await _shoppingCartService.GetCartAsync(userId);
-            var address = await _context.Addresses.FirstOrDefaultAsync(a => a.UserId == userId);
+            var address = await _context.Addresses
+                .Where(a => a.UserId == userId)
+                .OrderByDescending(a => a.CreatedAt) // Assuming there is a CreatedDate field to get the most recent address
+                .FirstOrDefaultAsync();
 
             return new OrderSummaryDto
             {
