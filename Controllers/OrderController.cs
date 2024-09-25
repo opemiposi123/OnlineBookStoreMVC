@@ -148,24 +148,23 @@ namespace OnlineBookStoreMVC.Controllers
         public async Task<IActionResult> AllPendingOrderSummaries()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var orderSummaries = await _orderService.GetAllOrderPendingSummariesAsync(userId);
+            var orderSummaries = await _orderService.GetAllPendingOrdersAsync(userId);
             return View(orderSummaries);
         }
 
         [HttpGet]
-        public async Task<IActionResult> AssignDeliveryToOrder(Guid orderId)
+        public async Task<IActionResult> AssignDeliveryToOrder(Guid id)
         {
             ViewBag.Deliveries = await _deliveryService.GetDeliverySelectList();
             return View(); 
-        }
-
+        } 
 
         [HttpPost]
-        public async Task<IActionResult> AssignDeliveryToOrder(Guid orderId, Guid deliveryId)
+        public async Task<IActionResult> AssignDeliveryToOrder([FromRoute]Guid id, Guid deliveryId)
         {
-            var result = await _orderService.AssignDeliveryToOrderAsync(orderId, deliveryId);
+            var result = await _orderService.AssignDeliveryToOrderAsync(id, deliveryId);
             _notyf.Success(result != null ? "Delivery assigned successfully." : "Failed to assign delivery. Please try again.");
-            return RedirectToAction(nameof(AllPendingOrderSummaries));
+            return RedirectToAction("AllPendingOrderSummaries");
         }
     }
 }

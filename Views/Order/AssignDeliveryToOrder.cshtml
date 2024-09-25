@@ -5,8 +5,8 @@
 
 <h2>@ViewData["Title"]</h2>
 
-<form asp-action="AssignDeliveryToOrderAsync" method="post">
-    <input type="hidden" name="orderId" value="@Model" />
+<form asp-action="AssignDeliveryToOrder" method="post">
+    <input type="hidden" asp-for="Id" value="@Model" />
 
     <div class="form-group">
         <label asp-for="DeliveryId" class="control-label">Select Delivery</label>
@@ -15,7 +15,7 @@
         </select>
         <span asp-validation-for="DeliveryId" class="text-danger"></span>
     </div>
-
+    <br />
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Assign Delivery</button>
     </div>

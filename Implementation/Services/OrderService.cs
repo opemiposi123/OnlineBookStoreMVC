@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Entities;
 using OnlineBookStoreMVC.Enums;
+using OnlineBookStoreMVC.Helper;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 
@@ -115,6 +116,8 @@ namespace OnlineBookStoreMVC.Implementation.Services
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
+            var code = CodeGenerator.GenerateRandomCode(6);
+
             return new OrderDto
             {
                 Id = order.Id,
@@ -135,7 +138,35 @@ namespace OnlineBookStoreMVC.Implementation.Services
         public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
         {
             var orders = await _context.Orders
+               // .Where(o => o.OrderStatus == OrderStatus.Received)
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book)
+                .Include(o => o.User)
+                .ToListAsync();
+
+            return orders.Select(order => new OrderDto
+            {
+                Id = order.Id,
+                UserId = order.UserId,
+                UserName = order.User?.UserName ?? "Unknown User",
+                OrderDate = order.OrderDate,
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    BookId = oi.BookId,
+                    BookTitle = oi.Book.Title,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice
+                }).ToList(),
+                TotalAmount = order.TotalAmount
+            });
+        }
+
+        public async Task<IEnumerable<OrderDto>> GetAllPendingOrdersAsync(string userId)
+        {
+            var orders = await _context.Orders
+                .Where(o => o.OrderStatus == OrderStatus.Pending)
+                .Include(o => o.OrderItems) 
                     .ThenInclude(oi => oi.Book)
                 .Include(o => o.User)
                 .ToListAsync();
@@ -250,7 +281,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             };
         }
 
-
         public async Task<List<OrderSummaryDto>> GetAllOrderSummariesAsync(string userId)
         {
             var orders = await _context.Orders
@@ -277,44 +307,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
                     FullName = o.Address.FullName,
                     Email = o.Address.Email,
                     PhoneNumber = o.Address.PhoneNumber,
-                },
-                UserId = userId,
-            }).ToList();
-
-            return orderSummaries;
-        }
-
-        public async Task<List<OrderSummaryDto>> GetAllOrderPendingSummariesAsync(string userId)
-        {
-            var pendingOrders = await _context.Orders
-                .Where(o => o.UserId == userId && o.OrderStatus == OrderStatus.Pending)
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Book)
-                .Include(o => o.Address)
-                .ToListAsync();
-
-            var orderSummaries = pendingOrders.Select(o => new OrderSummaryDto
-            {
-                ShoppingCart = new ShoppingCartDto
-                {
-                    ShoppingCartItems = o.OrderItems.Select(oi => new ShoppingCartItemDto
-                    {
-                        BookId = oi.BookId,
-                        BookTitle = oi.Book.Title,
-                        Quantity = oi.Quantity,
-                        Price = oi.UnitPrice
-                    }).ToList(),
-                },
-                Address = new AddressDto
-                {
-                    FullName = o.Address.FullName,
-                    Email = o.Address.Email,
-                    PhoneNumber = o.Address.PhoneNumber,
-                    Street = o.Address.Street,
-                    City = o.Address.City,
-                    State = o.Address.State,
-                    PostalCode = o.Address.PostalCode,
-                    Country = o.Address.Country
                 },
                 UserId = userId,
             }).ToList();
@@ -383,8 +375,11 @@ namespace OnlineBookStoreMVC.Implementation.Services
 
         public async Task<OrderDto> AssignDeliveryToOrderAsync(Guid orderId, Guid deliveryId)
         {
-            var order = await _context.Orders.Include(o => o.Delivery)
-                                             .FirstOrDefaultAsync(o => o.Id == orderId);
+            var order = await _context.Orders
+                .Include(o => o.Delivery)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
             {

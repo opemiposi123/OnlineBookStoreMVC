@@ -221,7 +221,38 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
         }
 
+        public async Task<bool> SendOrderConfirmationEmailAsync(User user, string deliveryCode, DateTime deliveryDate)
+        {
+            _logger.LogInformation($"Sending order confirmation email to {user.Email}");
 
+            string emailBody = $"<p>Dear {user.FullName},</p>" +
+                               $"<p>Thank you for your order!</p>" +
+                               $"<p>Your delivery code is: <strong>{deliveryCode}</strong></p>" +
+                               $"<p>Your order is expected to be delivered by: <strong>{deliveryDate.ToString("dddd, MMMM dd, yyyy")}</strong></p>" +
+                               $"<p>We hope you enjoy your purchase!</p>" +
+                               $"<p>Thank you,</p>" +
+                               $"<p>AbdulMuheez Online BookStore</p>";
+
+            var mailRequest = new MailRequests
+            {
+                Body = emailBody,
+                Title = "Order Confirmation - AbdulMuheez Online BookStore",
+                HtmlContent = emailBody,
+                ToEmail = user.Email
+            };
+
+            try
+            {
+                await SendEmailClient(mailRequest.HtmlContent, mailRequest.Title, user.Email);
+                _logger.LogInformation("Order confirmation email sent successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while sending order confirmation email.");
+                return false;
+            }
+        }
 
     }
 }

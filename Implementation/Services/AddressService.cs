@@ -17,94 +17,37 @@ namespace OnlineBookStoreMVC.Implementation.Services
 
         public async Task<AddressDto> AddAddressAsync(AddressRequestModel model, string userId)
         {
-            var existingAddress = await _context.Addresses
-                .Where(a => a.UserId == userId)
-                .OrderByDescending(a => a.CreatedAt)
-                .FirstOrDefaultAsync();
-
-            if (existingAddress != null)
+            var address = new Address
             {
-                existingAddress.FullName = model.FullName;
-                existingAddress.Email = model.Email;
-                existingAddress.PhoneNumber = model.PhoneNumber;
-                existingAddress.Street = model.Street;
-                existingAddress.City = model.City;
-                existingAddress.State = model.State;
-                existingAddress.PostalCode = model.PostalCode;
-                existingAddress.Country = model.Country;
-                existingAddress.UpdatedAt = DateTime.UtcNow;
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                FullName = model.FullName,
+                Email = model.Email,
+                PhoneNumber = model.PhoneNumber,
+                Street = model.Street,
+                City = model.City,
+                State = model.State,
+                PostalCode = model.PostalCode,
+                Country = model.Country
+            };
 
-                _context.Update(existingAddress);
-            }
-            else
-            {
-                var address = new Address
-                {
-                    UserId = userId,
-                    FullName = model.FullName,
-                    Email = model.Email,
-                    PhoneNumber = model.PhoneNumber,
-                    Street = model.Street,
-                    City = model.City,
-                    State = model.State,
-                    PostalCode = model.PostalCode,
-                    Country = model.Country
-                };
-
-                _context.Addresses.Add(address);
-            }
-
+            _context.Addresses.Add(address);
             await _context.SaveChangesAsync();
 
             return new AddressDto
             {
-                Id = existingAddress?.Id ?? address.Id,
-                UserId = userId,
-                FullName = existingAddress?.FullName ?? address.FullName,
-                Email = existingAddress?.Email ?? address.Email,
-                PhoneNumber = existingAddress?.PhoneNumber ?? address.PhoneNumber,
-                Street = existingAddress?.Street ?? address.Street,
-                City = existingAddress?.City ?? address.City,
-                State = existingAddress?.State ?? address.State,
-                PostalCode = existingAddress?.PostalCode ?? address.PostalCode,
-                Country = existingAddress?.Country ?? address.Country
+                Id = address.Id,
+                UserId = address.UserId,
+                FullName = address.FullName,
+                Email = address.Email,
+                PhoneNumber = address.PhoneNumber,
+                Street = address.Street,
+                City = address.City,
+                State = address.State,
+                PostalCode = address.PostalCode,
+                Country = address.Country
             };
         }
-
-        //public async Task<AddressDto> AddAddressAsync(AddressRequestModel model, string userId)
-        //{
-        //    var address = new Address
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        UserId = userId,
-        //        FullName = model.FullName,
-        //        Email = model.Email,
-        //        PhoneNumber = model.PhoneNumber,
-        //        Street = model.Street,
-        //        City = model.City,
-        //        State = model.State,
-        //        PostalCode = model.PostalCode,
-        //        Country = model.Country
-        //    };
-
-        //    _context.Addresses.Add(address);
-        //    await _context.SaveChangesAsync();
-
-        //    return new AddressDto
-        //    {
-        //        Id = address.Id,
-        //        UserId = address.UserId,
-        //        FullName = address.FullName,
-        //        Email = address.Email,
-        //        PhoneNumber = address.PhoneNumber,
-        //        Street = address.Street,
-        //        City = address.City,
-        //        State = address.State,
-        //        PostalCode = address.PostalCode,
-        //        Country = address.Country
-        //    };
-        //}
-
 
         public async Task<AddressDto> GetAddressByUserIdAsync(string userId)
         {

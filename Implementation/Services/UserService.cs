@@ -109,6 +109,14 @@ namespace OnlineBookStoreMVC.Implementation.Services
             await _userManager.AddToRoleAsync(user, Role.User.ToString());
             await _context.SaveChangesAsync();
 
+            // Send welcome email
+            var emailResponse = await _emailService.SendMessageToUserAsync(userRequest);
+
+            if (!emailResponse.Success)
+            {
+                _logger.LogError("Failed to send welcome email to user.");
+            }
+
             return new UserDto
             {
                 Username = user.UserName,
@@ -119,7 +127,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 Role = Role.User
             };
         }
-
         public async Task<UserDto> UpdateUserAsync(Guid id, UserRequestModel userRequest)
         {
             _logger.LogInformation($"Updating user with ID: {id}");

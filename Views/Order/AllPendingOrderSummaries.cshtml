@@ -1,4 +1,4 @@
-﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.OrderSummaryDto>
+﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.OrderDto>
 
 @{
     ViewData["Title"] = "Pending Orders";
@@ -8,37 +8,30 @@
 
 @if (Model.Any())
 {
+
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Book Title</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total Price</th>
-                <th>Shipping Address</th>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>Order Date</th>
+                <th>Total Amount</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var orderSummary in Model)
+            @foreach (var order in Model)
             {
-                foreach (var item in orderSummary.ShoppingCart.ShoppingCartItems)
-                {
-                    <tr>
-                        <td>@item.BookTitle</td>
-                        <td>@item.Quantity</td>
-                        <td>@item.Price.ToString("N2")</td>
-                        <td>@(item.Quantity * item.Price).ToString("N2")</td>
-                        <td>
-                            @orderSummary.Address.FullName<br />
-                            @orderSummary.Address.Email<br />
-                            @orderSummary.Address.PhoneNumber
-                        </td>
-                        <td>
-                            <a asp-action="OrderDetails" asp-route-id="@orderSummary.Id" class="btn btn-primary">View Order Details</a>
-                        </td>
-                    </tr>
-                }
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.UserName</td>
+                    <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                    <td>@order.TotalAmount.ToString("N2")</td> 
+                    <td>
+                        <a asp-action="AssignDeliveryToOrder" asp-route-id="@order.Id" class="btn btn-primary">Assign Delivery</a>
+                        <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-primary">View Order Detail</a>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>

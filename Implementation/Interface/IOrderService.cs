@@ -15,7 +15,8 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<bool> DeleteOrderAsync(Guid id);
         Task<OrderSummaryDto> GetOrderSummaryAsync(string userId);
         Task<OrderDto> PlaceOrderAsync(OrderSummaryDto orderSummary);
-        Task<List<OrderSummaryDto>> GetAllOrderPendingSummariesAsync(string userId);
+        Task<IEnumerable<OrderDto>> GetAllPendingOrdersAsync(string userId);
+        //Task<List<OrderSummaryDto>> GetAllOrderPendingSummariesAsync(string userId);
         Task<OrderDto> AssignDeliveryToOrderAsync(Guid orderId, Guid deliveryId);
     }
 }
