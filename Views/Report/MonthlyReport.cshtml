@@ -1,0 +1,31 @@
+﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.MonthlyReportDto>
+
+<h2>Monthly Report for @ViewBag.Month/@ViewBag.Year</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Order Date</th>
+            <th>Total Amount</th>
+            <th>Items</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.UserFullName</td>
+                <td>@order.OrderDate.ToShortDateString()</td>
+                <td>@order.TotalAmount</td>
+                <td>
+                    <ul>
+                        @foreach (var item in order.Items)
+                        {
+                            <li>@item.BookTitle - @item.Quantity x @item.UnitPrice = @item.TotalPrice</li>
+                        }
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

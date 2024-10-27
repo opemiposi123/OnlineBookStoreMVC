@@ -3,9 +3,9 @@
 @inject IShoppingCartService ShoppingCartService
 
 @{
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var testUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     var username = User.Identity?.Name;
-    var totalItemsCount = userId != null ? await ShoppingCartService.GetTotalItemsQuantityCountAsync(userId) : 0;
+    var totalItemsCount = testUserId != null ? await ShoppingCartService.GetTotalItemsQuantityCountAsync(testUserId) : 0;
 }
 
 <!DOCTYPE html>
@@ -13,7 +13,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - OnlineBookStoreMVC</title>
+    <title>@ViewData["Title"] - OnlineBookStore</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.css" />
@@ -23,8 +23,8 @@
     <link rel="stylesheet" href="~/OnlineBookStoreMVC.styles.css" asp-append-version="true" />
     <!-- Bootstrap JS -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
 </head>
+
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -49,21 +49,28 @@
                             }
                             @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                             {
-                                <li class="nav-item">
+                               @*  <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="Book" asp-action="Index">Books</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Author" asp-action="Index">Authors</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="Order" asp-action="OrderSummaries">Order Summaries</a>
-                                </li>  
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="Delivery" asp-action="Index">Delivery</a>
-                                </li>  
+                                </li> *@
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="DashboardCount" asp-action="Index">DashboardCount</a>
+                                </li>
+
+                            }
+                            @if (User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Order" asp-action="UserOrders" asp-route-userId="@testUserId">Order History</a>
+                                </li>
                             }
                         }
                     </ul>
@@ -71,7 +78,7 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link username-display" asp-controller="User" asp-action="Details" asp-route-id="@userId">
+                                <a class="nav-link username-display" asp-controller="User" asp-action="Details" asp-route-id="@testUserId">
                                     <i class="fa-solid fa-user"></i> @username
                                 </a>
                             </li>
@@ -83,7 +90,7 @@
                                 </form>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark float-right cart-icon" asp-area="" asp-controller="ShoppingCart" asp-action="Index" asp-route-userId="@userId">
+                                <a class="nav-link text-dark float-right cart-icon" asp-area="" asp-controller="ShoppingCart" asp-action="Index" asp-route-userId="@testUserId">
                                     <i class="fa-solid fa-cart-shopping"></i>
                                     Cart
                                     @if (totalItemsCount > 0)
@@ -118,7 +125,7 @@
     </div>
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - OnlineBookStoreMVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @DateTime.Now.Year - OnlineBookStore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -127,4 +134,5 @@
     @await Component.InvokeAsync("Notyf")
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

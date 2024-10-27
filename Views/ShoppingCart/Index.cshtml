@@ -1,4 +1,4 @@
-﻿@model OnlineBookStoreMVC.DTOs.ShoppingCartDto
+﻿@* @model OnlineBookStoreMVC.DTOs.ShoppingCartDto
 
 @{
     ViewData["Title"] = "Shopping Cart";
@@ -69,9 +69,11 @@
                         </button>
                     </form>
 
-                    <form  asp-action="InputAddress" method="get" style="display:inline;">
+                    <form asp-controller="Address" asp-action="Index" method="get" style="display:inline;">
                         <input type="hidden" name="UserId" value="@Model.UserId" />
-                        <button type="submit" class="btn btn-success float-right mr-5"><i class="fa-solid fa-angles-right"></i> Checkout</button>
+                        <button type="submit" class="btn btn-success float-right mr-5">
+                            <i class="fa-solid fa-angles-right"></i> Checkout
+                        </button>
                     </form>
                 </div>
             </div>
@@ -85,3 +87,70 @@
         </div>
     }
 </div>
+ *@
+ @model OnlineBookStoreMVC.DTOs.ShoppingCartDto
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+    <div id="shopping-cart-content">
+        @await Html.PartialAsync("_ShoppingCartPartial", Model)
+    </div>
+
+    <div class="text-right mt-4">
+        <form asp-action="ClearCart" method="post" style="display:inline;">
+            <input type="hidden" name="userId" value="@Model.UserId" />
+            <button type="submit" class="btn btn-danger float-right mr-5">
+                <i class="fa-solid fa-trash-can"></i> Empty Cart
+            </button>
+        </form>
+
+        <form asp-controller="Address" asp-action="Index" method="get" style="display:inline;">
+            <input type="hidden" name="UserId" value="@Model.UserId" />
+            <button type="submit" class="btn btn-success float-right mr-5">
+                <i class="fa-solid fa-angles-right"></i> Checkout
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.reduce-btn').click(function () {
+                var bookId = $(this).data('book-id');
+                var userId = '@Model.UserId';
+
+                $.ajax({
+                    url: '@Url.Action("ReduceCartItemQuantity", "ShoppingCart")',
+                    type: 'POST',
+                    data: { userId: userId, bookId: bookId },
+                    success: function (result) {
+                        $('#shopping-cart-content').html(result); // Update cart content
+                    }
+                });
+            });
+
+            $('.increase-btn').click(function () {
+                var bookId = $(this).data('book-id');
+                var userId = '@Model.UserId';
+
+                $.ajax({
+                    url: '@Url.Action("IncreaseCartItemQuantity", "ShoppingCart")',
+                    type: 'POST',
+                    data: { userId: userId, bookId: bookId },
+                    success: function (result) {
+                        $('#shopping-cart-content').html(result); // Update cart content
+                    }
+                });
+            });
+
+            // Optional: Handle remove item or other actions similarly
+        });
+    </script>
+}

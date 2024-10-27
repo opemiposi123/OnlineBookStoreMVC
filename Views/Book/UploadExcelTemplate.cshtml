@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Upload Books";
+}
+
+<h2>Upload Books in Bulk</h2>
+
+<form asp-action="UploadExcelTemplate" enctype="multipart/form-data" method="post">
+    <div class="form-group">
+        <label for="file">Upload Excel Template:</label>
+        <input type="file" name="file" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

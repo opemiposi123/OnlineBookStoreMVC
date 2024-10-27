@@ -89,7 +89,7 @@ namespace OnlineBookStoreMVC.Controllers
             return View(categoryRequest);
         }
 
-        [HttpGet("Delete")]
+        [HttpGet("DeleteCategory")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
             var success = await _categoryService.DeleteCategoryAsync(id);

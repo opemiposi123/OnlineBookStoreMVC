@@ -31,6 +31,11 @@ namespace OnlineBookStoreMVC.Implementation.Services
             _emailService = emailService;
         }
 
+        public List<User> GetAllUser()
+        {
+            return _context.Users.ToList();
+        }
+
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
             _logger.LogInformation("Getting all users.");
@@ -268,22 +273,19 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 return new Status { Success = false, Message = "User not found." };
             }
 
-            // Generate the code
             var code = CodeGenerator.GenerateRandomCode(6);
 
             var forgotPasswordCode = new ForgotPasswordCode
             {
                 UserId = user.Id,
                 Code = code,
-                ExpirationTime = DateTime.UtcNow.AddMinutes(5), // Code expires after 5 minutes
+                ExpirationTime = DateTime.UtcNow.AddMinutes(5),
                 IsUsed = false
             };
 
-            // Save the code to the database
             await _context.ForgotPasswordCodes.AddAsync(forgotPasswordCode);
             await _context.SaveChangesAsync();
 
-            // Send email with the code
             var emailSent = await _emailService.SendForgotPasswordCodeAsync(user, code);
             if (!emailSent)
             {

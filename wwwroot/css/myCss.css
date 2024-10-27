@@ -135,3 +135,48 @@ body {
 h2.text-center {
     margin-bottom: 2rem;
 }
+
+.address-book-container {
+    margin: 20px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.address-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.address-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.default-label {
+    background-color: #f0c040;
+    padding: 3px 6px;
+    border-radius: 5px;
+    font-size: 12px;
+    color: #fff;
+}
+
+.select-address-button, .cancel-button {
+    background-color: #f0c040;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+    .select-address-button:hover, .cancel-button:hover {
+        background-color: #d89e2a;
+    }
+

@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "Generate Report";
+}
+
+<h2>Generate Report</h2>
+
+<form method="post" action="@Url.Action("GenerateReport", "Report")">
+    <div class="form-group">
+        <label for="fromDate">From Date:</label>
+        <input type="date" id="fromDate" name="fromDate" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="toDate">To Date:</label>
+        <input type="date" id="toDate" name="toDate" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Download Report</button>
+</form>

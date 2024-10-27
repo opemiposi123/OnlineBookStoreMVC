@@ -17,6 +17,7 @@
         </button>
     </form>
 </div>
+
 <!-- Book Listing -->
 <div class="row row-cols-1 row-cols-md-4 g-4">
     @foreach (var book in Model)
@@ -27,19 +28,28 @@
                     <img src="@book.CoverImageUrl" class="card-img-top card-img-custom" alt="@book.Title" />
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-center text-truncate">@book.Title</h5>
-                        <p class="card-text text-center text-truncate">@book.AuthorName</p>
+                        <p class="card-text text-center text-truncate">@book.Author</p>
                         <p class="card-text text-center mt-auto">₦@book.Price.ToString("N2")</p>
                     </div>
                 </a>
                 <div class="card-footer text-center">
-                    
-                    <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="d-inline">
-                        <input type="hidden" name="bookId" value="@book.Id" />
-                        <input type="hidden" name="userId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
-                        <button type="submit" class="btn btn-primary store-btn w-100">
-                            <i class="fa-solid fa-cart-plus me-2"></i>Add to Cart
-                        </button>
-                    </form>
+
+                    @if (book.TotalQuantity > 0)
+                    {
+                        <!-- Show "Add to Cart" button when the book is in stock -->
+                        <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="d-inline">
+                            <input type="hidden" name="bookId" value="@book.Id" />
+                            <input type="hidden" name="userId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
+                            <button type="submit" class="btn btn-primary store-btn w-100">
+                                <i class="fa-solid fa-cart-plus me-2"></i>Add to Cart
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- Show "Out of Store" when the book is out of stock -->
+                        <span class="text-danger fw-bold">Out of Store</span>
+                    }
                 </div>
             </div>
         </div>

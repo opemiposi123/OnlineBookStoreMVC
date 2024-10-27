@@ -1,4 +1,5 @@
 ﻿using OnlineBookStoreMVC.DTOs;
+using OnlineBookStoreMVC.Entities;
 using OnlineBookStoreMVC.Enums;
 using OnlineBookStoreMVC.Models;
 using OnlineBookStoreMVC.Models.RequestModels;
@@ -18,5 +19,6 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<Status> ForgotPasswordAsync(string email);
         Task<Status> VerifyResetCodeAsync(string email, string code);
         Task<Status> ChangePasswordAsync(string email, string newPassword, string confirmPassword);
+        List<User> GetAllUser();
     }
 }

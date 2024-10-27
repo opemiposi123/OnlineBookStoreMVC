@@ -33,22 +33,14 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="PublicationDate">Publication Date</label>
-                            <input type="date" class="form-control" id="PublicationDate" name="PublicationDate" required />
-                        </div>
-
-                        <div class="form-group mb-3">
                             <label for="Price">Price (₦)</label>
                             <input type="number" class="form-control" id="Price" name="Price" step="0.01" required />
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label asp-for="AuthorId" class="form-label">Author</label>
-                                <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.Authors">
-                                    <option value="">Select Author</option>
-                                </select>
-                                <span asp-validation-for="AuthorId" class="text-danger"></span>
+                                <label for="Author">Author</label>
+                                <input type="text" class="form-control" id="Author" name="Author" required />
                             </div>
 
                             <div class="col-md-6 mb-3">

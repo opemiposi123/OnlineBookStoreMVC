@@ -11,6 +11,5 @@ namespace OnlineBookStoreMVC.Entities
         public string Gender { get; set; }
         public Role Role { get; set; }
         public List<Order> Orders { get; set; }
-        public List<Review> Reviews { get; set; }
     }
 }

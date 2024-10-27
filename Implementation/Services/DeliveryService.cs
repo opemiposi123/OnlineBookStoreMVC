@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Entities;
+using OnlineBookStoreMVC.Enums;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
 
@@ -13,6 +14,11 @@ namespace OnlineBookStoreMVC.Implementation.Services
         public DeliveryService(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        public List<Delivery> GetAllDeliveries() 
+        {
+            return _context.Deliveries.ToList();
         }
 
         public async Task<DeliveryDto> CreateDeliveryAsync(DeliveryRequestModel deliveryRequest)
@@ -57,7 +63,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 FirstName = c.FirstName,
                 LastName = c.LastName,
                 TransportationType = c.TransportationType, 
-                DeliveryStatus = c.DeliveryStatus, 
                 PhoneNumber = c.PhoneNumber,
                 Gender = c.Gender,
                 Email = c.Email
@@ -75,8 +80,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 FirstName = delivery.FirstName,
                 LastName = delivery.LastName,
                 TransportationType = delivery.TransportationType,
-                DeliveryStatus = delivery.DeliveryStatus,
-                PhoneNumber = delivery.PhoneNumber,
                 Gender = delivery.Gender,
                 Email = delivery.Email
             };
@@ -113,6 +116,24 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 Id = delivery.Id,
                 FirstName = delivery.FirstName
             };
+        }
+
+        public async Task<IEnumerable<DeliveryDto>> GetDeliveriesByTransportationTypeAsync(TransportationType transportationType)
+        {
+            var deliveries = await _context.Deliveries
+                .Where(d => d.TransportationType == transportationType)
+                .ToListAsync();
+
+            return deliveries.Select(d => new DeliveryDto
+            {
+                Id = d.Id,
+                FirstName = d.FirstName,
+                LastName = d.LastName,
+                TransportationType = d.TransportationType,
+                PhoneNumber = d.PhoneNumber,
+                Gender = d.Gender,
+                Email = d.Email
+            });
         }
     }
 }

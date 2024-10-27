@@ -4,33 +4,63 @@
     ViewData["Title"] = "User Orders";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container my-5">
+    <h2 class="text-center mb-4">@ViewData["Title"]</h2>
 
-@foreach (var order in Model)
-{
-    <h3>Order ID: @order.Id</h3>
-    <h4>Order Date: @order.OrderDate.ToString("yyyy-MM-dd")</h4>
-    <h4>Total Amount: @order.TotalAmount.ToString("N2")</h4>
+    @if (!Model.Any())
+    {
+        <p class="text-center text-muted">No orders found.</p>
+    }
+    else
+    {
+        @foreach (var order in Model)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4>Order ID: @order.Id</h4> 
+                    <p class="mb-0">Order Date: @order.OrderDate.ToString("yyyy-MM-dd")</p>
+                    <p class="mb-0">Total Amount: <strong>&#8358;@order.TotalAmount.ToString("N2")</strong></p>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Book Title</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-center">Unit Price (&#8358;)</th>
+                                <th class="text-center">Total Price (&#8358;)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <tr>
+                                    <td>@item.BookTitle</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-center">@item.UnitPrice.ToString("N2")</td>
+                                    <td class="text-center">@(item.Quantity * item.UnitPrice).ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-end">
+                    <strong>Total: &#8358;@order.TotalAmount.ToString("N2")</strong>
+                </div>
+            </div>
+        }
+    }
+</div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Book Title</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Total Price</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in order.OrderItems)
-            {
-                <tr>
-                    <td>@item.BookTitle</td>
-                    <td>@item.Quantity</td>
-                    <td>@item.UnitPrice.ToString("N2")</td>
-                    <td>@(item.Quantity * item.UnitPrice)</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<style>
+    .card {
+        border: none;
+        border-radius: 8px;
+    }
+    .card-header {
+        border-radius: 8px 8px 0 0;
+    }
+    table th, table td {
+        vertical-align: middle;
+    }
+</style>

@@ -7,10 +7,19 @@
 <div class="container">
     <h1 class="text-center my-4">Books</h1>
 
-    <div class="d-flex justify-content-end mb-3">
-        <a class="btn btn-primary" href="@Url.Action("Create")">Create New Book</a>
+    <!-- Action Buttons Section -->
+    <div class="d-flex justify-content-between mb-4">
+        <div class="d-flex flex-column">
+            <a class="btn btn-primary mb-2" href="@Url.Action("Create")">Create New Book</a>
+            <a class="btn btn-primary mb-2" asp-action="GetBooksMissingCoverImage">Missing Image List</a>
+        </div>
+        <div class="d-flex flex-column">
+            <a class="btn btn-success mb-2" asp-action="DownloadExcelTemplate">Download Excel Template</a>
+            <a class="btn btn-success mb-2" asp-action="UploadExcelTemplate">Upload Books</a>
+        </div>
     </div>
 
+    <!-- Books Table -->
     <div class="table-responsive">
         <table class="table table-hover table-striped">
             <thead class="table-dark">
@@ -18,12 +27,10 @@
                     <th>Title</th>
                     <th>Author</th>
                     <th>Category</th>
-                    <th>ISBN</th>
                     <th>Price</th>
                     <th>Language</th>
                     <th>Pages</th>
                     <th>Total Quantity</th>
-                    <th>Remaining Quantity</th>
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
@@ -32,23 +39,21 @@
                 {
                     <tr>
                         <td>@item.Title</td>
-                        <td>@item.AuthorName</td>
+                        <td>@item.Author</td>
                         <td>@item.CategoryName</td>
-                        <td>@item.ISBN</td>
                         <td>₦@item.Price.ToString("N2")</td>
                         <td>@item.Language</td>
                         <td>@item.Pages</td>
                         <td>@item.TotalQuantity</td>
-                        <td>@item.RemainingQuantity</td>
                         <td class="text-center">
                             <a class="btn btn-warning btn-sm mx-1" href="@Url.Action("Edit", new { id = item.Id })">
-                                <i class="fas fa-edit"></i>
+                                <i class="fas fa-edit"></i> 
                             </a>
                             <button type="button" class="btn btn-info btn-sm mx-1" data-bs-toggle="modal" data-bs-target="#detailsModal" data-book-id="@item.Id">
-                                <i class="fas fa-info-circle"></i>
+                                <i class="fas fa-info-circle"></i> 
                             </button>
                             <button type="button" class="btn btn-danger btn-sm mx-1" data-bs-toggle="modal" data-bs-target="#deleteModal" data-book-id="@item.Id">
-                                <i class="fas fa-trash-alt"></i>
+                                <i class="fas fa-trash-alt"></i> 
                             </button>
                         </td>
                     </tr>
@@ -68,14 +73,14 @@
             </div>
             <div class="modal-body">
                 <div id="bookDetails">
-                    <!-- Details will be injected here by JavaScript -->
+                    <!-- Book details will be injected here dynamically -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-
+<!-- Delete Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -107,39 +112,44 @@
             bookIdInput.value = bookId;
         });
     });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const detailsModal = document.getElementById('detailsModal');
-        detailsModal.addEventListener('show.bs.modal', async function (event) {
-            const button = event.relatedTarget;
-            const bookId = button.getAttribute('data-book-id');
 
-            // Fetch book details from the server
-            const response = await fetch(`/Book/Details/${bookId}`);
-            const book = await response.json();
+   document.addEventListener('DOMContentLoaded', function () {
+    const detailsModal = document.getElementById('detailsModal');
+    
+    detailsModal.addEventListener('show.bs.modal', async function (event) {
+        const button = event.relatedTarget;
+        const bookId = button.getAttribute('data-book-id');
+        
+        // Fetch book details from the server
+        const response = await fetch(`/Book/Details/${bookId}`);
+        const book = await response.json();
+        
+        // Check if the book exists
+        if (!book) {
+            return;
+        }
 
-            // Populate the modal with book details
-            const detailsDiv = document.getElementById('bookDetails');
-            detailsDiv.innerHTML = `
-                    <img src="${book.coverImageUrl}" alt="${book.title}" class="img-fluid">
-                    <h4>${book.title}</h4>
-                    <p><strong>Author:</strong> ${book.authorName}</p>
-                    <p><strong>Category:</strong> ${book.categoryName}</p>
-                    <p><strong>ISBN:</strong> ${book.isbn}</p>
-                    <p><strong>Publisher:</strong> ${book.publisher}</p>
-                    <p><strong>Publication Date:</strong> ${new Date(book.publicationDate).toLocaleDateString()}</p>
-                    <p><strong>Price:</strong> ₦${book.price.toFixed(2)}</p>
-                    <p><strong>Language:</strong> ${book.language}</p>
-                    <p><strong>Pages:</strong> ${book.pages}</p>
-                    <p><strong>Total Quantity:</strong> ${book.totalQuantity}</p>
-                    <p><strong>Remaining Quantity:</strong> ${book.remainingQuantity}</p>
-                   
-                    <h5>Reviews:</h5>
-                    <ul>
-                        ${book.reviews.map(r => `<li>${r.rating} stars - ${r.comment}</li>`).join('')}
-                    </ul>
-                `;
-        });
+        // Populate the modal with book details
+        const detailsDiv = document.getElementById('bookDetails');
+        detailsDiv.innerHTML = `
+            <img src="${book.coverImageUrl}" alt="${book.title}" class="img-fluid mb-3">
+            <h4>${book.title}</h4>
+            <p><strong>Author:</strong> ${book.author}</p>
+            <p><strong>Category:</strong> ${book.categoryName}</p>
+            <p><strong>ISBN:</strong> ${book.isbn}</p>
+            <p><strong>Publisher:</strong> ${book.publisher}</p>
+            <p><strong>Price:</strong> ₦${book.price.toFixed(2)}</p>
+            <p><strong>Language:</strong> ${book.language}</p>
+            <p><strong>Pages:</strong> ${book.pages}</p>
+            <p><strong>Status:</strong> ${book.totalQuantity <= 0 ? "Out of Stock" : `In Stock`}</p>
+            <p><strong>Remaining Quantity:</strong> ${book.totalQuantity}</p>
+            <h5>Reviews:</h5>
+            <ul>
+                ${book.reviews && book.reviews.length > 0 
+                    ? book.reviews.map(r => `<li>${r.rating} stars - ${r.comment}</li>`).join('')
+                    : '<li>No reviews yet</li>'}
+            </ul>
+        `;
     });
+});
 </script>

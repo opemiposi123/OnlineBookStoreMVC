@@ -3,9 +3,8 @@
 namespace OnlineBookStoreMVC.Entities
 {
     public class Delivery : BaseEntity 
-    { 
-        public Guid Id { get; set; }
-        public  DeliveryStatus DeliveryStatus {get;set;}
+    {
+        public  DeliveryStatus? DeliveryStatus {get;set;} 
         public TransportationType TransportationType { get; set; }
         public string Gender { get; set; }
         public string Email { get; set; }

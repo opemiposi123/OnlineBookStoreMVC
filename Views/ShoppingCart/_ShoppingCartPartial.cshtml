@@ -1,0 +1,39 @@
+﻿@model OnlineBookStoreMVC.DTOs.ShoppingCartDto
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Title</th>
+                <th>Quantity</th>
+                <th>Price (₦)</th>
+                <th>Total (₦)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.ShoppingCartItems.Count; i++)
+            {
+                <tr>
+                    <td>@Model.ShoppingCartItems[i].BookTitle</td>
+                    <td>@Model.ShoppingCartItems[i].Quantity</td>
+                    <td>₦@Model.ShoppingCartItems[i].Price.ToString("N2")</td>
+                    <td>₦@Model.ShoppingCartItems[i].TotalPrice.ToString("N2")</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-warning btn-sm reduce-btn" data-book-id="@Model.ShoppingCartItems[i].BookId"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-success btn-sm increase-btn" data-book-id="@Model.ShoppingCartItems[i].BookId"><i class="fa fa-plus"></i></button>
+                            <button type="button" class="btn btn-danger btn-sm remove-btn" data-book-id="@Model.ShoppingCartItems[i].BookId"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                <td colspan="2"><strong>₦@Model.TotalPrice.ToString("N2")</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

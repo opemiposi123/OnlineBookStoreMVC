@@ -6,21 +6,58 @@
 <h2>@ViewData["Title"]</h2>
 
 <form asp-action="AssignDeliveryToOrder" method="post">
-    <input type="hidden" asp-for="Id" value="@Model" />
+    <input type="hidden" asp-for="Id" value="@Model.Id" />
+
+    <div class="form-group">
+        <label class="control-label">Select Transportation Type</label>
+        <select id="transportationType" class="form-control">
+            <option value="">-- Select Transportation Type --</option>
+            @foreach (var type in Enum.GetValues(typeof(OnlineBookStoreMVC.Enums.TransportationType)))
+            {
+                <option value="@((int)type)">@type</option>
+            }
+        </select>
+    </div>
 
     <div class="form-group">
         <label asp-for="DeliveryId" class="control-label">Select Delivery</label>
-        <select asp-for="DeliveryId" asp-items="ViewBag.Deliveries" class="form-control">
+        <select asp-for="DeliveryId" id="deliverySelect" class="form-control">
             <option value="">-- Select a Delivery --</option>
         </select>
         <span asp-validation-for="DeliveryId" class="text-danger"></span>
     </div>
     <br />
-    <div class="form-group">
+ @*    <div class="form-group">
         <button type="submit" class="btn btn-primary">Assign Delivery</button>
+    </div> *@
+    <div class="form-group text-right">
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-check-circle"></i> Assign Delivery
+        </button>
     </div>
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#transportationType').change(function () {
+                var selectedType = $(this).val();
+                if (selectedType) {
+                    $.ajax({
+                        url: '@Url.Action("GetDeliveriesByTransportationType", "Delivery")',
+                        type: 'GET',
+                        data: { transportationType: selectedType },
+                        success: function (data) {
+                            $('#deliverySelect').empty(); // Clear current delivery options
+                            $('#deliverySelect').append('<option value="">-- Select a Delivery --</option>');
+                            $.each(data, function (index, item) {
+                                $('#deliverySelect').append('<option value="' + item.id + '">' + item.firstName + ' ' + item.lastName + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }

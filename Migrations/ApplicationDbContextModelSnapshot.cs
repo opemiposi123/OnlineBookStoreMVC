@@ -160,18 +160,17 @@ namespace OnlineBookStoreMVC.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("City")
-                        .IsRequired()
+                    b.Property<string>("AddittionalPhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Country")
+                    b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("DeliveryAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -179,19 +178,14 @@ namespace OnlineBookStoreMVC.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Street")
+                    b.Property<string>("Region")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -209,45 +203,20 @@ namespace OnlineBookStoreMVC.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("OnlineBookStoreMVC.Entities.Author", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Biography")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Authors");
-                });
-
             modelBuilder.Entity("OnlineBookStoreMVC.Entities.Book", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Author")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CoverImageUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -271,15 +240,9 @@ namespace OnlineBookStoreMVC.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<DateTime>("PublicationDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Publisher")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RemainingQuantity")
-                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -292,8 +255,6 @@ namespace OnlineBookStoreMVC.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
 
                     b.HasIndex("CategoryId");
 
@@ -330,7 +291,7 @@ namespace OnlineBookStoreMVC.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DeliveryStatus")
+                    b.Property<int?>("DeliveryStatus")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -504,41 +465,6 @@ namespace OnlineBookStoreMVC.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("OnlineBookStoreMVC.Entities.Review", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BookId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("OnlineBookStoreMVC.Entities.ShoppingCart", b =>
@@ -747,19 +673,11 @@ namespace OnlineBookStoreMVC.Migrations
 
             modelBuilder.Entity("OnlineBookStoreMVC.Entities.Book", b =>
                 {
-                    b.HasOne("OnlineBookStoreMVC.Entities.Author", "Author")
-                        .WithMany("Books")
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("OnlineBookStoreMVC.Entities.Category", "Category")
                         .WithMany("Books")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Author");
 
                     b.Navigation("Category");
                 });
@@ -808,25 +726,6 @@ namespace OnlineBookStoreMVC.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("OnlineBookStoreMVC.Entities.Review", b =>
-                {
-                    b.HasOne("OnlineBookStoreMVC.Entities.Book", "Book")
-                        .WithMany("Reviews")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OnlineBookStoreMVC.Entities.User", "User")
-                        .WithMany("Reviews")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("OnlineBookStoreMVC.Entities.ShoppingCart", b =>
                 {
                     b.HasOne("OnlineBookStoreMVC.Entities.User", "User")
@@ -862,16 +761,6 @@ namespace OnlineBookStoreMVC.Migrations
                     b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("OnlineBookStoreMVC.Entities.Author", b =>
-                {
-                    b.Navigation("Books");
-                });
-
-            modelBuilder.Entity("OnlineBookStoreMVC.Entities.Book", b =>
-                {
-                    b.Navigation("Reviews");
-                });
-
             modelBuilder.Entity("OnlineBookStoreMVC.Entities.Category", b =>
                 {
                     b.Navigation("Books");
@@ -890,8 +779,6 @@ namespace OnlineBookStoreMVC.Migrations
             modelBuilder.Entity("OnlineBookStoreMVC.Entities.User", b =>
                 {
                     b.Navigation("Orders");
-
-                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

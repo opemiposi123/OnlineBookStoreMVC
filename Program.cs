@@ -1,6 +1,8 @@
 using AspNetCoreHero.ToastNotification;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using OnlineBookStoreMVC.Data;
 using OnlineBookStoreMVC.Entities;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Implementation.Services;
@@ -8,9 +10,11 @@ using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Set the EPPlus License Context
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddTransient<IAuthorService, AuthorService>();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<IBookService, BookService>();
 builder.Services.AddTransient<IOrderService, OrderService>();
@@ -19,6 +23,8 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<IAddressService, AddressService>();
 builder.Services.AddTransient<IDeliveryService, DeliveryService>();
+builder.Services.AddTransient<IReportService, ReportService>();
+builder.Services.AddTransient<IDashboardCountService, DashboardCountService>();
 builder.Services.AddHttpClient<PaymentService>();
 
 // Configure Identity services
@@ -28,8 +34,8 @@ builder.Services.AddIdentity<User, IdentityRole>(opt =>
     opt.Password.RequireDigit = false;
     opt.Password.RequireUppercase = true;
     opt.User.RequireUniqueEmail = true;
-    opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromSeconds(10); // Lockout duration
-    opt.Lockout.MaxFailedAccessAttempts = 5; // Number of failed attempts before lockout
+    opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromSeconds(10);
+    opt.Lockout.MaxFailedAccessAttempts = 5;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
@@ -49,12 +55,12 @@ builder.Services.AddHttpClient<PaymentService>(client =>
 });
 
 // Configure session management
-builder.Services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(20); // Set session timeout
-    options.Cookie.HttpOnly = true; // Make session cookie HTTP-only
-    options.Cookie.IsEssential = true; // Make the session cookie essential
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
 // Configure Notyf for notifications
@@ -73,15 +79,14 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
+app.UseItToSeedSqlServer();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-// Use session middleware
 app.UseSession();
 
-app.UseAuthentication(); // Make sure to add this before UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

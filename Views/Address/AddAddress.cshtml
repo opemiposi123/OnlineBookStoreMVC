@@ -1,0 +1,83 @@
+﻿@model OnlineBookStoreMVC.Models.RequestModels.AddressRequestModel
+@{
+    ViewData["Title"] = "Add Address";
+}
+
+<h2>Add Address</h2>
+
+<form asp-action="AddAddress" method="post">
+    <div>
+        <label for="FullName">Full Name</label>
+        <input asp-for="FullName" class="form-control" value="@Model.FullName" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+    <div>
+        <label for="DeliveryAddress">Delivery Address</label>
+        <input asp-for="DeliveryAddress" class="form-control" />
+        <span asp-validation-for="DeliveryAddress" class="text-danger"></span>
+    </div>
+    <div>
+        <label for="City">City</label>
+        <select asp-for="City" class="form-control">
+            <option value="">-- Select City --</option>
+            <option value="Ikeja">Ikeja</option>
+            <option value="Surulere">Surulere</option>
+            <option value="Lekki">Lekki</option>
+            <option value="Ikorodu">Ikorodu</option>
+            <option value="Epe">Epe</option>
+            <option value="Badagry">Badagry</option>
+            <option value="Victoria Island">Victoria Island</option>
+            <option value="Yaba">Yaba</option>
+            <option value="Agege">Agege</option>
+            <option value="Ajah">Ajah</option>
+            <option value="Maryland">Maryland</option>
+            <option value="Festac">Festac</option>
+            <option value="IyanaPaja">IyanaPaja</option>
+            <option value="AbuleEgba">AbuleEgba</option>
+            <!-- Add more cities in Lagos as needed -->
+        </select>
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+    <div>
+        <label for="Region">Region (State)</label>
+        <select asp-for="Region" class="form-control">
+            <option value="">-- Select State --</option>
+            <option value="Lagos">Lagos</option>
+            <option value="Ogun">Ogun</option>
+            <option value="Oyo">Oyo</option>
+            <option value="FCT">FCT (Abuja)</option>
+            <option value="Abia">Abia</option>
+            <option value="Adamawa">Adamawa</option>
+            <option value="Akwa Ibom">Akwa Ibom</option>
+            <option value="Anambra">Anambra</option>
+            <option value="Bauchi">Bauchi</option>
+            <option value="Bayelsa">Bayelsa</option>
+            <option value="Delta">Delta</option>
+            <option value="Ebonyi">Ebonyi</option>
+            <option value="Edo">Edo</option>
+            <option value="Ekiti">Ekiti</option>
+            <option value="Enugu">Enugu</option>
+            <option value="Gombe">Gombe</option>
+        </select>
+        <span asp-validation-for="Region" class="text-danger"></span>
+    </div>
+    <div>
+        <label for="PhoneNumber">Phone Number</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <div>
+        <label for="AddittionalPhoneNumber">Additional Phone Number</label>
+        <input asp-for="AddittionalPhoneNumber" class="form-control" />
+        <span asp-validation-for="AddittionalPhoneNumber" class="text-danger"></span>
+    </div>
+    <div>
+        <label>
+            <input asp-for="IsDefault" type="checkbox" /> Set as Default Address
+        </label>
+        <span asp-validation-for="IsDefault" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

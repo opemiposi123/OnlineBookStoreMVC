@@ -119,8 +119,10 @@ public class UserController : Controller
                 _notyf.Success("Login successful.");
                 return RedirectToAction("Index", "Store");
             }
-
-            ModelState.AddModelError(string.Empty, result.Message);
+            else
+            {
+                _notyf.Error("Invalid username or password. Please try again.");
+            }
         }
 
         return View(login);

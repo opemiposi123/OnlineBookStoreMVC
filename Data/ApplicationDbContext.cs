@@ -8,12 +8,10 @@ public class ApplicationDbContext : IdentityDbContext<User>
     {
     }
 
-    public DbSet<Author> Authors { get; set; }
     public DbSet<Book> Books { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
-    public DbSet<Review> Reviews { get; set; }
     public DbSet<ShoppingCart> ShoppingCarts { get; set; }
     public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
     public DbSet<User> Users { get; set; }
@@ -32,7 +30,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
           .HasOne(o => o.Address)
           .WithMany(a => a.Orders)
           .HasForeignKey(o => o.AddressId)
-          .OnDelete(DeleteBehavior.Restrict);  // Avoid cascade delete issues
+          .OnDelete(DeleteBehavior.Restrict);
 
     }
 }
