@@ -89,7 +89,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 address.IsDefault = false;
             }
 
-            // Set the selected address as default
             var defaultAddress = userAddresses.FirstOrDefault(a => a.Id == selectedAddressId);
             if (defaultAddress != null)
             {
@@ -97,8 +96,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
             await _context.SaveChangesAsync();
         }
-
-
 
         public async Task<AddressDto> GetAddressByUserIdAsync(string userId)
         {

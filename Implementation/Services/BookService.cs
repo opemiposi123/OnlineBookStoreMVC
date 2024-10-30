@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Entities;
 using OnlineBookStoreMVC.Implementation.Interface;
-using OnlineBookStoreMVC.Models;
 using OnlineBookStoreMVC.Models.RequestModels;
 
 namespace OnlineBookStoreMVC.Implementation.Services
@@ -50,6 +48,44 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 TotalQuantity = b.TotalQuantity
             });
         }
+        public async Task<PaginatedDto<BookDto>> GetPaginatedBooksAsync(int page, int pageSize)
+        {
+            var totalBooks = await _context.Books.CountAsync(b => b.CoverImageUrl != null);
+
+            var books = await _context.Books
+                .Where(b => b.CoverImageUrl != null)
+                .Include(b => b.Category)
+                .OrderBy(b => b.Title)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var bookDtos = books.Select(b => new BookDto
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Description = b.Description,
+                ISBN = b.ISBN,
+                Publisher = b.Publisher,
+                Price = b.Price,
+                Author = b.Author,
+                CategoryId = b.CategoryId,
+                CategoryName = b.Category.Name,
+                CoverImageUrl = b.CoverImageUrl,
+                Pages = b.Pages,
+                Language = b.Language,
+                TotalQuantity = b.TotalQuantity
+            }).ToList();
+
+            return new PaginatedDto<BookDto>
+            {
+                Items = bookDtos,
+                TotalCount = totalBooks,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<IEnumerable<BookDto>> GetBooksMissingCoverImageAsync()
         {
             var books = await _context.Books
@@ -147,7 +183,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             };
         }
 
-
         public async Task<BookDto> UpdateBookAsync(Guid id, BookRequestModel bookRequest)
         {
             var book = await _context.Books.FindAsync(id);
@@ -213,7 +248,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
             return $"/images/{file.FileName}";
         }
-
         public async Task<FileResult> DownloadExcelTemplateAsync()
         {
             var categories = await _categoryService.GetCategorySelectList();
@@ -334,7 +368,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 throw new ApplicationException("An error occurred while processing the Excel file. Please try again later.", ex);
             }
         }
-
 
         public async Task<bool> AddCoverImageAsync(Guid bookId, IFormFile coverImageFile)
         {

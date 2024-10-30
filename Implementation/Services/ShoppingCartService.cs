@@ -192,6 +192,12 @@ namespace OnlineBookStoreMVC.Implementation.Services
 
             return totalItemsCount;
         }
+        public async Task<decimal> CalculateTotalPriceAsync(string userId)
+        {
+            var cart = await GetOrCreateCartAsync(userId);
+            return cart.ShoppingCartItems.Sum(item => item.Quantity * item.Price);
+        }
+
 
     }
 }

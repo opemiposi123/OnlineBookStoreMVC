@@ -12,6 +12,7 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<UserDto> GetUserByIdAsync(string id);
         Task<UserDto> CreateUserAsync(UserRequestModel userRequest);
         Task<UserDto> UpdateUserAsync(Guid id, UserRequestModel userRequest);
+        Task<PaginatedDto<UserDto>> GetPaginatedUsersAsync(int page, int pageSize);
         Task<bool> DeleteUserAsync(Guid id);
         Task<Status> Login(LoginModel login);
         Task LogoutAsync();

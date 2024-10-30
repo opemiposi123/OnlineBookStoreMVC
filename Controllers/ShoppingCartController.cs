@@ -49,6 +49,49 @@ namespace OnlineBookStoreMVC.Controllers
             return RedirectToAction("Index", "Store", new { userId });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ReduceCartItemQuantity(string userId, Guid bookId)
+        {
+            var remainingQuantity = await _shoppingCartService.ReduceQuantityAsync(userId, bookId);
+            var totalPrice = await _shoppingCartService.CalculateTotalPriceAsync(userId);
+
+            return Json(new
+            {
+                success = true,
+                remainingQuantity,
+                totalPrice
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> IncreaseCartItemQuantity(string userId, Guid bookId)
+        {
+            var remainingQuantity = await _shoppingCartService.IncreaseQuantityAsync(userId, bookId);
+            var totalPrice = await _shoppingCartService.CalculateTotalPriceAsync(userId);
+
+            return Json(new
+            {
+                success = true,
+                remainingQuantity,
+                totalPrice
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveCartItem(string userId, Guid bookId)
+        {
+            await _shoppingCartService.RemoveFromCartAsync(userId, bookId);
+            var totalPrice = await _shoppingCartService.CalculateTotalPriceAsync(userId);
+
+            return Json(new
+            {
+                success = true,
+                totalPrice
+            });
+        }
+
+
+
         //// POST: ShoppingCart/Reduce
         //[HttpPost]
         //public async Task<IActionResult> ReduceCartItemQuantity(string userId, Guid bookId)
@@ -66,36 +109,14 @@ namespace OnlineBookStoreMVC.Controllers
         //    _notyf.Success("Cart item quantity has been successfully increased.");
         //    return RedirectToAction("Index", new { userId });
         //}
-
-        // POST: ShoppingCart/Reduce
-        [HttpPost]
-        public async Task<IActionResult> ReduceCartItemQuantity(string userId, Guid bookId)
-        {
-            var remainingQuantity = await _shoppingCartService.ReduceQuantityAsync(userId, bookId);
-
-            var shoppingCart = await _shoppingCartService.GetCartAsync(userId); // Retrieve updated cart
-            return PartialView("_ShoppingCartPartial", shoppingCart); // Return partial view with updated cart data
-        }
-
-        // POST: ShoppingCart/Increase
-        [HttpPost]
-        public async Task<IActionResult> IncreaseCartItemQuantity(string userId, Guid bookId)
-        {
-            var remainingQuantity = await _shoppingCartService.IncreaseQuantityAsync(userId, bookId);
-
-            var shoppingCart = await _shoppingCartService.GetCartAsync(userId); // Retrieve updated cart
-            return PartialView("_ShoppingCartPartial", shoppingCart); // Return partial view with updated cart data
-        }
-
-
-        // POST: ShoppingCart/Remove
-        [HttpPost]
-        public async Task<IActionResult> RemoveCartItem(string userId, Guid bookId)
-        {
-            await _shoppingCartService.RemoveFromCartAsync(userId, bookId);
-            _notyf.Success("Book has been successfully removed from the cart.");
-            return RedirectToAction("Index", new { userId });
-        }
+        //// POST: ShoppingCart/Remove
+        //[HttpPost]
+        //public async Task<IActionResult> RemoveCartItem(string userId, Guid bookId)
+        //{
+        //    await _shoppingCartService.RemoveFromCartAsync(userId, bookId);
+        //    _notyf.Success("Book has been successfully removed from the cart.");
+        //    return RedirectToAction("Index", new { userId });
+        //}
 
         // POST: ShoppingCart/Clear
         [HttpPost]

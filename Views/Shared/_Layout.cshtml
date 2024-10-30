@@ -29,7 +29,15 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Store" asp-action="Index">OnlineBookStore</a>
+                @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+                {
+                    <a class="navbar-brand" asp-area="" asp-controller="DashboardCount" asp-action="Index">OnlineBookStore</a>
+                }
+                else
+                {
+                    <a class="navbar-brand" asp-area="" asp-controller="" asp-action="">OnlineBookStore</a>
+                }
+                
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -43,26 +51,14 @@
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="User" asp-action="Index">Users</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Order" asp-action="ListOrders">Orders</a>
-                                </li>
                             }
                             @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                             {
-                               @*  <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Book" asp-action="Index">Books</a>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Store" asp-action="Index">Store</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Order" asp-action="OrderSummaries">Order Summaries</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Delivery" asp-action="Index">Delivery</a>
-                                </li> *@
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="DashboardCount" asp-action="Index">DashboardCount</a>
+                                    <a class="nav-link" asp-area="" asp-controller="Order" asp-action="ListOrders">Orders</a>
                                 </li>
 
                             }

@@ -1,4 +1,4 @@
-﻿@* @model OnlineBookStoreMVC.DTOs.ShoppingCartDto
+﻿@model OnlineBookStoreMVC.DTOs.ShoppingCartDto
 
 @{
     ViewData["Title"] = "Shopping Cart";
@@ -25,28 +25,23 @@
                         <tbody>
                             @for (int i = 0; i < Model.ShoppingCartItems.Count; i++)
                             {
-                                <tr>
+                                var rowId = "cart-item-" + i;
+                                <tr id="@rowId">
                                     <td>@Model.ShoppingCartItems[i].BookTitle</td>
-                                    <td>@Model.ShoppingCartItems[i].Quantity</td>
+                                    <td class="quantity">@Model.ShoppingCartItems[i].Quantity</td>
                                     <td>₦@Model.ShoppingCartItems[i].Price.ToString("N2")</td>
                                     <td>₦@Model.ShoppingCartItems[i].TotalPrice.ToString("N2")</td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <form asp-action="ReduceCartItemQuantity" method="post" style="display:inline;">
-                                                <input type="hidden" name="userId" value="@Model.UserId" />
-                                                <input type="hidden" name="bookId" value="@Model.ShoppingCartItems[i].BookId" />
-                                                <button type="submit" class="btn btn-warning btn-sm"><i class="fa fa-minus"></i></button>
-                                            </form>
-                                            <form asp-action="IncreaseCartItemQuantity" method="post" style="display:inline;">
-                                                <input type="hidden" name="userId" value="@Model.UserId" />
-                                                <input type="hidden" name="bookId" value="@Model.ShoppingCartItems[i].BookId" />
-                                                <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-plus"></i></button>
-                                            </form>
-                                            <form asp-action="RemoveCartItem" method="post" style="display:inline;">
-                                                <input type="hidden" name="userId" value="@Model.UserId" />
-                                                <input type="hidden" name="bookId" value="@Model.ShoppingCartItems[i].BookId" />
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
-                                            </form>
+                                            <button class="btn btn-warning btn-sm reduce-item" data-rowid="@rowId" data-userid="@Model.UserId" data-bookid="@Model.ShoppingCartItems[i].BookId">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
+                                            <button class="btn btn-success btn-sm increase-item" data-rowid="@rowId" data-userid="@Model.UserId" data-bookid="@Model.ShoppingCartItems[i].BookId">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm remove-item" data-rowid="@rowId" data-userid="@Model.UserId" data-bookid="@Model.ShoppingCartItems[i].BookId">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -55,7 +50,7 @@
                         <tfoot>
                             <tr>
                                 <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                                <td colspan="2"><strong>₦@Model.TotalPrice.ToString("N2")</strong></td>
+                                <td colspan="2"><strong>₦<span id="totalPrice">@Model.TotalPrice.ToString("N2")</span></strong></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -87,70 +82,63 @@
         </div>
     }
 </div>
- *@
- @model OnlineBookStoreMVC.DTOs.ShoppingCartDto
-
-@{
-    ViewData["Title"] = "Shopping Cart";
-}
-
-<div class="container my-5">
-    <h2 class="text-center mb-4">@ViewData["Title"]</h2>
-
-    <div id="shopping-cart-content">
-        @await Html.PartialAsync("_ShoppingCartPartial", Model)
-    </div>
-
-    <div class="text-right mt-4">
-        <form asp-action="ClearCart" method="post" style="display:inline;">
-            <input type="hidden" name="userId" value="@Model.UserId" />
-            <button type="submit" class="btn btn-danger float-right mr-5">
-                <i class="fa-solid fa-trash-can"></i> Empty Cart
-            </button>
-        </form>
-
-        <form asp-controller="Address" asp-action="Index" method="get" style="display:inline;">
-            <input type="hidden" name="UserId" value="@Model.UserId" />
-            <button type="submit" class="btn btn-success float-right mr-5">
-                <i class="fa-solid fa-angles-right"></i> Checkout
-            </button>
-        </form>
-    </div>
-</div>
 
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        function updateCartItem(actionUrl, userId, bookId, rowId) {
+            $.ajax({
+                type: "POST",
+                url: actionUrl,
+                data: { userId: userId, bookId: bookId },
+                success: function (response) {
+                    if (response.success) {
+                        // Update quantity and total price of the specific item
+                        if (response.remainingQuantity !== undefined) {
+                            $('#' + rowId + ' .quantity').text(response.remainingQuantity);
+                        }
+
+                        // Update total price for the cart
+                        $('#totalPrice').text("₦" + response.totalPrice.toFixed(2));
+
+                        // Optionally, remove the row if the quantity is zero
+                        if (response.remainingQuantity === 0) {
+                            $('#' + rowId).remove();
+                        }
+
+                        // Show notification
+                        Notyf.success("Cart updated successfully.");
+                    }
+                },
+                error: function () {
+                    Notyf.error("Failed to update the cart item.");
+                }
+            });
+        }
+
         $(document).ready(function () {
-            $('.reduce-btn').click(function () {
-                var bookId = $(this).data('book-id');
-                var userId = '@Model.UserId';
-
-                $.ajax({
-                    url: '@Url.Action("ReduceCartItemQuantity", "ShoppingCart")',
-                    type: 'POST',
-                    data: { userId: userId, bookId: bookId },
-                    success: function (result) {
-                        $('#shopping-cart-content').html(result); // Update cart content
-                    }
-                });
+            $('.reduce-item').click(function (e) {
+                e.preventDefault();
+                const rowId = $(this).data('rowid');
+                const userId = $(this).data('userid');
+                const bookId = $(this).data('bookid');
+                updateCartItem('@Url.Action("ReduceCartItemQuantity", "ShoppingCart")', userId, bookId, rowId);
             });
 
-            $('.increase-btn').click(function () {
-                var bookId = $(this).data('book-id');
-                var userId = '@Model.UserId';
-
-                $.ajax({
-                    url: '@Url.Action("IncreaseCartItemQuantity", "ShoppingCart")',
-                    type: 'POST',
-                    data: { userId: userId, bookId: bookId },
-                    success: function (result) {
-                        $('#shopping-cart-content').html(result); // Update cart content
-                    }
-                });
+            $('.increase-item').click(function (e) {
+                e.preventDefault();
+                const rowId = $(this).data('rowid');
+                const userId = $(this).data('userid');
+                const bookId = $(this).data('bookid');
+                updateCartItem('@Url.Action("IncreaseCartItemQuantity", "ShoppingCart")', userId, bookId, rowId);
             });
 
-            // Optional: Handle remove item or other actions similarly
+            $('.remove-item').click(function (e) {
+                e.preventDefault();
+                const rowId = $(this).data('rowid');
+                const userId = $(this).data('userid');
+                const bookId = $(this).data('bookid');
+                updateCartItem('@Url.Action("RemoveCartItem", "ShoppingCart")', userId, bookId, rowId);
+            });
         });
     </script>
 }

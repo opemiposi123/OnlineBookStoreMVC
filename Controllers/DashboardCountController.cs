@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
 
 namespace OnlineBookStoreMVC.Controllers
 {
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class DashboardCountController : Controller
     {
         private readonly IDashboardCountService _dashboardCountService;

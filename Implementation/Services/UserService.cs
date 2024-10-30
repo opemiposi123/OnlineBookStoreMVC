@@ -62,6 +62,47 @@ namespace OnlineBookStoreMVC.Implementation.Services
             _logger.LogInformation("Successfully retrieved all users.");
             return userDtos;
         }
+        public async Task<PaginatedDto<UserDto>> GetPaginatedUsersAsync(int page, int pageSize)
+        {
+            _logger.LogInformation("Getting paginated users.");
+
+            var totalUsers = await _userManager.Users.CountAsync();
+
+            var users = await _userManager.Users
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var userDtos = new List<UserDto>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                var role = roles.FirstOrDefault() ?? Role.User.ToString();
+
+                userDtos.Add(new UserDto
+                {
+                    Id = user.Id,
+                    Username = user.UserName,
+                    Email = user.Email,
+                    Role = Enum.Parse<Role>(role),
+                    FullName = user.FullName,
+                    Gender = user.Gender.ToString(),
+                    PhoneNumber = user.PhoneNumber
+                });
+            }
+
+            _logger.LogInformation("Successfully retrieved paginated users.");
+
+            return new PaginatedDto<UserDto>
+            {
+                Items = userDtos,
+                TotalCount = totalUsers,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
+        }
+
 
         public async Task<UserDto> GetUserByIdAsync(string id)
         {
@@ -299,14 +340,11 @@ namespace OnlineBookStoreMVC.Implementation.Services
 
         public async Task<Status> VerifyResetCodeAsync(string email, string code)
         {
-            // Find the user by email
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
                 return new Status { Success = false, Message = "User not found" };
             }
-
-            // Check if the code exists in the ForgotPasswordCode table and is valid
             var resetCode = await _context.ForgotPasswordCodes
                             .FirstOrDefaultAsync(c => c.UserId == user.Id && c.Code == code);
 
@@ -319,8 +357,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             {
                 return new Status { Success = false, Message = "Code expired." };
             }
-
-            // Mark the code as used or delete it as necessary
             resetCode.IsUsed = true;
             _context.ForgotPasswordCodes.Update(resetCode);
             await _context.SaveChangesAsync();
@@ -331,8 +367,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             {
                 return new Status { Success = false, Message = "Invalid or expired reset code" };
             }
-
-            // Mark the code as used
             resetCode.IsUsed = true;
             _context.ForgotPasswordCodes.Update(resetCode);
             await _context.SaveChangesAsync();

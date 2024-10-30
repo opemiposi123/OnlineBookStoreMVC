@@ -1,8 +1,7 @@
-﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.UserDto>
+﻿@model OnlineBookStoreMVC.DTOs.PaginatedDto<OnlineBookStoreMVC.DTOs.UserDto>
 
 @{
     ViewData["Title"] = "User List";
-    //Layout = "_AdminLayout";
 }
 
 <h2>User List</h2>
@@ -19,7 +18,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var user in Model)
+        @foreach (var user in Model.Items)  
         {
             <tr>
                 <td>@user.Role</td>
@@ -34,7 +33,6 @@
                     }
                     @if (user.Role.ToString() != "SuperAdmin")
                     {
-                      
                         <a asp-controller="User" asp-action="Edit" asp-route-id="@user.Id" class="btn btn-secondary">Edit</a>
 
                         <form asp-action="Delete" asp-controller="User" asp-route-id="@user.Id" method="post" style="display:inline;">

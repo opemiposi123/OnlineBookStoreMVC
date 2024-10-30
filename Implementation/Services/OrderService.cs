@@ -33,57 +33,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             return _context.Orders.ToList();
         }
 
-        //public async Task<OrderDto> CheckoutAsync(OrderRequestModel orderRequest)
-        //{
-        //    try
-        //    {
-        //        var order = new Order
-        //        {
-        //            UserId = orderRequest.UserId,
-        //            OrderDate = DateTime.UtcNow,
-        //            OrderItems = orderRequest.OrderItems.Select(oi => new OrderItem
-        //            {
-        //                BookId = oi.BookId,
-        //                Quantity = oi.Quantity,
-        //                UnitPrice = oi.UnitPrice
-        //            }).ToList(),
-        //            TotalAmount = orderRequest.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice)
-        //        };
-
-        //        _context.Orders.Add(order);
-        //        await _context.SaveChangesAsync();
-
-        //        foreach (var orderItem in order.OrderItems)
-        //        {
-        //            orderItem.Book = await _context.Books.FindAsync(orderItem.BookId);
-        //            if (orderItem.Book == null)
-        //            {
-        //                throw new Exception($"Book with ID {orderItem.BookId} not found.");
-        //            }
-        //        }
-
-        //        return new OrderDto
-        //        {
-        //            Id = order.Id,
-        //            UserId = order.UserId,
-        //            OrderDate = order.OrderDate,
-        //            OrderItems = order.OrderItems.Select(oi => new OrderItemDto
-        //            {
-        //                Id = oi.Id,
-        //                BookId = oi.BookId,
-        //                BookTitle = oi.Book?.Title ?? "Unknown Book",
-        //                Quantity = oi.Quantity,
-        //                UnitPrice = oi.UnitPrice
-        //            }).ToList(),
-        //            TotalAmount = order.TotalAmount
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw;
-        //    }
-        //}
-
         public async Task<OrderDto> CheckoutCompleteAsync(string userId)
         {
             var order = await _context.Orders.Include(o => o.OrderItems)
@@ -135,6 +84,46 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 }).ToList(),
                 TotalAmount = order.TotalAmount
             });
+        }
+
+        public async Task<PaginatedDto<OrderDto>> GetPaginatedOrdersAsync(int page, int pageSize)
+        {
+            var totalOrders = await _context.Orders.CountAsync();
+
+            var orders = await _context.Orders
+                .Where(o => o.OrderStatus == OrderStatus.Received || o.OrderStatus == OrderStatus.Shipping)
+                .Include(o => o.OrderItems)
+                  .ThenInclude(oi => oi.Book)
+                .Include(o => o.User)
+                .OrderBy(o => o.OrderDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var orderDtos = orders.Select(order => new OrderDto
+            {
+                Id = order.Id,
+                UserId = order.UserId,
+                UserName = order.User?.UserName ?? "Unknown User",
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    BookId = oi.BookId,
+                    BookTitle = oi.Book.Title,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice
+                }).ToList()
+            }).ToList();
+
+            return new PaginatedDto<OrderDto>
+            {
+                Items = orderDtos,
+                TotalCount = totalOrders,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
         }
 
         public async Task<IEnumerable<OrderDto>> GetAllPendingOrdersAsync(string userId)
@@ -230,54 +219,26 @@ namespace OnlineBookStoreMVC.Implementation.Services
             return true;
         }
 
-        //public async Task<OrderSummaryDto> GetOrderSummaryAsync(string userId)
-        // {
-        //     var cart = await _shoppingCartService.GetCartAsync(userId);
-        //     var address = await _context.Addresses
-        //         .Where(a => a.UserId == userId)
-        //         .OrderByDescending(a => a.CreatedAt)
-        //         .FirstOrDefaultAsync();
-
-        //     return new OrderSummaryDto
-        //     {
-        //         ShoppingCart = cart ?? new ShoppingCartDto(),
-        //         UserId = userId,
-        //         Address = address != null ? new AddressDto
-        //         {
-        //             FullName = address.FullName,
-        //             PhoneNumber = address.PhoneNumber,
-        //             AddittionalPhoneNumber = address.AddittionalPhoneNumber,
-        //             City = address.City,
-        //             Region = address.Region,
-        //             DeliveryAddress = address.DeliveryAddress
-        //         } : new AddressDto()
-        //     };
-        // }
-
         public async Task<OrderSummaryDto> GetOrderSummaryAsync(string userId, Guid? selectedAddressId)
         {
             var cart = await _shoppingCartService.GetCartAsync(userId);
-
-            Address address;
-
-            // If an address is selected, use that. Otherwise, get the most recent address.
-            if (selectedAddressId.HasValue)
-            {
-                address = await _context.Addresses.FirstOrDefaultAsync(a => a.Id == selectedAddressId.Value && a.UserId == userId);
-            }
-            else
-            {
-                address = await _context.Addresses
+            var address = selectedAddressId.HasValue
+                ? await _context.Addresses.FirstOrDefaultAsync(a => a.Id == selectedAddressId.Value && a.UserId == userId)
+                : await _context.Addresses
                     .Where(a => a.UserId == userId)
                     .OrderByDescending(a => a.CreatedAt)
                     .FirstOrDefaultAsync();
+
+            if (address == null)
+            {
+                throw new Exception("No valid address found for the user.");
             }
 
             return new OrderSummaryDto
             {
                 ShoppingCart = cart ?? new ShoppingCartDto(),
                 UserId = userId,
-                Address = address != null ? new AddressDto
+                Address = new AddressDto
                 {
                     FullName = address.FullName,
                     PhoneNumber = address.PhoneNumber,
@@ -285,7 +246,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
                     City = address.City,
                     Region = address.Region,
                     DeliveryAddress = address.DeliveryAddress
-                } : new AddressDto()
+                }
             };
         }
 
@@ -441,9 +402,6 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
             order.DeliveryId = delivery.Id;
             order.OrderStatus = OrderStatus.Shipping;
-            order.Delivery = delivery;
-
-            delivery.DeliveryStatus = DeliveryStatus.InTransit;
 
            
             _context.Orders.Update(order);

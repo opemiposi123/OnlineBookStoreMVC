@@ -1,7 +1,5 @@
-﻿using AspNetCoreHero.ToastNotification.Abstractions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
-using OnlineBookStoreMVC.Implementation.Services;
 using OnlineBookStoreMVC.Models.RequestModels;
 using System.Security.Claims;
 
@@ -19,14 +17,12 @@ namespace OnlineBookStoreMVC.Controllers
             _httpContextAccessor = httpContextAccessor;
             _userService = userService;
         }
-
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var addresses = await _addressService.GetAllAddressesByUserIdAsync(userId);
             return View(addresses);
         }
-
         [HttpGet]
         public async Task<IActionResult> AddAddress()
         {
@@ -40,8 +36,6 @@ namespace OnlineBookStoreMVC.Controllers
 
             return View(model);
         }
-
-
         [HttpPost]
         public async Task<IActionResult> AddAddress(AddressRequestModel model)
         {
@@ -49,7 +43,6 @@ namespace OnlineBookStoreMVC.Controllers
             await _addressService.AddAddressAsync(model, userId);
             return RedirectToAction("Index");
         }
-
         [HttpPost]
         public async Task<IActionResult> UpdateAddress(Guid addressId, AddressRequestModel model)
         {
@@ -64,7 +57,7 @@ namespace OnlineBookStoreMVC.Controllers
 
             await _addressService.SetDefaultAddressAsync(userId, selectedAddress);
 
-            return RedirectToAction("OrderSummary", "Order",  new { selectedAddress }); 
+            return RedirectToAction("OrderSummary", "Order", new { selectedAddressId = selectedAddress });
         }
 
     }

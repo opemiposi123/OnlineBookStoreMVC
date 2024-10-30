@@ -11,6 +11,7 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<int> ReduceQuantityAsync(string userId, Guid bookId);
         Task<int> IncreaseQuantityAsync(string userId, Guid bookId);
         Task RemoveFromCartAsync(string userId, Guid bookId);
+        Task<decimal> CalculateTotalPriceAsync(string userId);
         Task ClearCartAsync(string userId);
         Task<decimal> GetCartTotalAsync(string userId);
         Task<int> GetCartItemCountAsync(string userId);

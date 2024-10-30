@@ -8,6 +8,7 @@ namespace OnlineBookStoreMVC.Implementation.Interface
     public interface IBookService
     {
         Task<IEnumerable<BookDto>> GetAllBooksAsync();
+        Task<PaginatedDto<BookDto>> GetPaginatedBooksAsync(int page, int pageSize);
         Task<BookDto> GetBookByIdAsync(Guid id);
         Task<BookDto> CreateBookAsync(BookRequestModel bookRequest);
         Task<BookDto> UpdateBookAsync(Guid id, BookRequestModel bookRequest);
