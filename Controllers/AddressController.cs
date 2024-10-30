@@ -23,6 +23,8 @@ namespace OnlineBookStoreMVC.Controllers
             var addresses = await _addressService.GetAllAddressesByUserIdAsync(userId);
             return View(addresses);
         }
+
+
         [HttpGet]
         public async Task<IActionResult> AddAddress()
         {

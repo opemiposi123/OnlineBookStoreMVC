@@ -4,6 +4,7 @@ using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Implementation.Interface;
 using System.Security.Claims;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using System.Drawing.Printing;
 
 namespace OnlineBookStoreMVC.Controllers
 {
@@ -51,13 +52,13 @@ namespace OnlineBookStoreMVC.Controllers
             return View("OrderSummary", orderSummary);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> OrderSummaries()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var orderSummaries = await _orderService.GetAllOrderSummariesAsync(userId);
-            return View(orderSummaries);
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> OrderSummaries()
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var orderSummaries = await _orderService.GetAllOrderSummariesAsync(userId);
+        //    return View(orderSummaries);
+        //}
 
         public async Task<IActionResult> CheckoutComplete(string userId)
         {
@@ -78,10 +79,10 @@ namespace OnlineBookStoreMVC.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> UserOrders(string userId)
+        public async Task<IActionResult> UserOrders(string userId,int page = 1,int pageSize = 10)
         {
-            var orders = await _orderService.GetOrdersByUserIdAsync(userId);
-            return View(orders);
+            var paginatedOrders = await _orderService.GetUserPaginatedOrdersAsync(page, pageSize,userId);
+            return View(paginatedOrders);
         }
 
         [HttpPost]

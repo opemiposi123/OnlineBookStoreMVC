@@ -1,66 +1,43 @@
-﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.OrderDto>
+﻿@model OnlineBookStoreMVC.DTOs.PaginatedDto<OnlineBookStoreMVC.DTOs.OrderDto>
 
 @{
     ViewData["Title"] = "User Orders";
 }
 
-<div class="container my-5">
-    <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+<h2>@ViewData["Title"]</h2>
 
-    @if (!Model.Any())
-    {
-        <p class="text-center text-muted">No orders found.</p>
-    }
-    else
-    {
-        @foreach (var order in Model)
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>User</th>
+            <th>Order Date</th>
+            <th>Total Amount</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model.Items)
         {
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4>Order ID: @order.Id</h4> 
-                    <p class="mb-0">Order Date: @order.OrderDate.ToString("yyyy-MM-dd")</p>
-                    <p class="mb-0">Total Amount: <strong>&#8358;@order.TotalAmount.ToString("N2")</strong></p>
-                </div>
-                <div class="card-body">
-                    <table class="table table-bordered table-hover">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th>Book Title</th>
-                                <th class="text-center">Quantity</th>
-                                <th class="text-center">Unit Price (&#8358;)</th>
-                                <th class="text-center">Total Price (&#8358;)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in order.OrderItems)
-                            {
-                                <tr>
-                                    <td>@item.BookTitle</td>
-                                    <td class="text-center">@item.Quantity</td>
-                                    <td class="text-center">@item.UnitPrice.ToString("N2")</td>
-                                    <td class="text-center">@(item.Quantity * item.UnitPrice)</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                <div class="card-footer text-end">
-                    <strong>Total: &#8358;@order.TotalAmount.ToString("N2")</strong>
-                </div>
-            </div>
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.UserName</td>
+                <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                <td>@order.TotalAmount.ToString("N2")</td>
+                <td>
+                    <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-primary">View Order Detail</a>
+                </td>
+            </tr>
         }
-    }
-</div>
-
-<style>
-    .card {
-        border: none;
-        border-radius: 8px;
-    }
-    .card-header {
-        border-radius: 8px 8px 0 0;
-    }
-    table th, table td {
-        vertical-align: middle;
-    }
-</style>
+    </tbody>
+</table>
+<nav>
+    <ul class="pagination justify-content-end">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="ListOrders" asp-route-page="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

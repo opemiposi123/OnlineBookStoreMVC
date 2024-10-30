@@ -29,11 +29,22 @@
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-center text-truncate">@book.Title</h5>
                         <p class="card-text text-center text-truncate">@book.Author</p>
+
+                        <!-- Quantity Display with Green Progress Bar -->
+                        <p class="card-text text-center text-muted small">
+                            @book.TotalQuantity items left
+                        </p>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: @(Math.Min(100, (int)(book.TotalQuantity / 200.0 * 100)))%"
+                                 aria-valuenow="@(book.TotalQuantity)" aria-valuemin="0" aria-valuemax="200">
+                            </div>
+                        </div>
+
                         <p class="card-text text-center mt-auto">₦@book.Price.ToString("N2")</p>
                     </div>
                 </a>
                 <div class="card-footer text-center">
-
                     @if (book.TotalQuantity > 0)
                     {
                         <!-- Show "Add to Cart" button when the book is in stock -->
