@@ -12,6 +12,7 @@
                     <h1 class="text-center mb-4">Edit Book</h1>
 
                     <form asp-action="Edit" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Id" />
 
                         <div class="form-group mb-3">
@@ -39,24 +40,16 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label asp-for="PublicationDate" class="form-label"></label>
-                            <input asp-for="PublicationDate" class="form-control" type="date" />
-                            <span asp-validation-for="PublicationDate" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
                             <label asp-for="Price" class="form-label"></label>
                             <input asp-for="Price" class="form-control" />
                             <span asp-validation-for="Price" class="text-danger"></span>
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="AuthorId" class="form-label">Author</label>
-                                <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.Authors">
-                                    <option value="">Select Author</option>
-                                </select>
-                                <span asp-validation-for="AuthorId" class="text-danger"></span>
+                            <div class="form-group mb-3">
+                                <label asp-for="Author" class="form-label">Author</label>
+                                <input asp-for="Author" class="form-control" />
+                                <span asp-validation-for="Author" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -84,6 +77,12 @@
                             <label asp-for="Language" class="form-label"></label>
                             <input asp-for="Language" class="form-control" />
                             <span asp-validation-for="Language" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="TotalQuantity" class="form-label"></label>
+                            <input asp-for="TotalQuantity" class="form-control" />
+                            <span asp-validation-for="TotalQuantity" class="text-danger"></span>
                         </div>
 
                         <div class="form-group text-center mb-3">

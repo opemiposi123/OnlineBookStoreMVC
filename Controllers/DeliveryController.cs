@@ -1,8 +1,8 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
-using OnlineBookStoreMVC.Entities;
+using OnlineBookStoreMVC.DTOs;
+using OnlineBookStoreMVC.Enums;
 using OnlineBookStoreMVC.Implementation.Interface;
-using OnlineBookStoreMVC.Implementation.Services;
 using OnlineBookStoreMVC.Models.RequestModels;
 
 namespace OnlineBookStoreMVC.Controllers
@@ -99,5 +99,19 @@ namespace OnlineBookStoreMVC.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDeliveriesByTransportationType(TransportationType transportationType)
+        {
+            var deliveries = await _deliveryService.GetDeliveriesByTransportationTypeAsync(transportationType);
+
+            if (deliveries == null || !deliveries.Any())
+            {
+                return Json(new List<DeliveryDto>()); 
+            }
+
+            return Json(deliveries);
+        }
+
     }
 }

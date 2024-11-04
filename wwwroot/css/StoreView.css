@@ -19,8 +19,8 @@ button.btn-outline-secondary {
 }
 
     button.btn-outline-secondary:hover {
-        background-color: #007bff;
-        color: #fff;
+        background-color: #ffffff;
+        color: #343a40;
     }
 
 .form-control.me-2 {
@@ -41,7 +41,7 @@ button.btn-primary {
     }
 
 /* Collapsible Filter Form */
-#filterCollapse .card {
+/*#filterCollapse .card {
     border: none;
     background-color: #fff;
     border-radius: 10px;
@@ -50,7 +50,7 @@ button.btn-primary {
 #filterCollapse .form-control {
     border-radius: 10px;
     padding: 0.5rem 1rem;
-}
+*/}
 
 /* Book Cards */
 .store-card {

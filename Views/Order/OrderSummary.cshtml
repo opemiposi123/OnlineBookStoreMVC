@@ -1,4 +1,4 @@
-﻿@* @model OnlineBookStoreMVC.DTOs.OrderSummaryDto
+﻿@model OnlineBookStoreMVC.DTOs.OrderSummaryDto
 
 <div class="container my-5">
     <h2 class="text-center mb-4">Order Summary</h2>
@@ -7,10 +7,8 @@
         <div class="card-body">
             <h4>Delivery Address</h4>
             <p><strong>@Model.Address.FullName</strong></p>
-            <p>@Model.Address.Street, @Model.Address.City</p>
-            <p>@Model.Address.State, @Model.Address.PostalCode</p>
-            <p>@Model.Address.Country</p>
-            <p>Email: @Model.Address.Email</p>
+            <p>@Model.Address.DeliveryAddress, @Model.Address.City</p>
+            <p>@Model.Address.Region</p>
             <p>Phone: @Model.Address.PhoneNumber</p>
         </div>
     </div>
@@ -50,11 +48,9 @@
 
             <div class="text-right mt-4">
                 <form asp-action="PlaceOrder" method="post">
-                    <!-- User ID -->
                     <input type="hidden" asp-for="UserId" />
                     <input type="hidden" asp-for="OrderId" />
 
-                    <!-- Shopping Cart Items -->
                     @for (int i = 0; i < Model.ShoppingCart.ShoppingCartItems.Count; i++)
                     {
                         <input type="hidden" name="ShoppingCart.ShoppingCartItems[@i].BookId" value="@Model.ShoppingCart.ShoppingCartItems[i].BookId" />
@@ -62,29 +58,29 @@
                         <input type="hidden" name="ShoppingCart.ShoppingCartItems[@i].Price" value="@Model.ShoppingCart.ShoppingCartItems[i].Price" />
                     }
 
-                    <!-- Address Fields -->
                     <input type="hidden" asp-for="Address.FullName" />
-                    <input type="hidden" asp-for="Address.Email" />
                     <input type="hidden" asp-for="Address.PhoneNumber" />
-                    <input type="hidden" asp-for="Address.Street" />
+                    <input type="hidden" asp-for="Address.DeliveryAddress" />
                     <input type="hidden" asp-for="Address.City" />
-                    <input type="hidden" asp-for="Address.State" />
-                    <input type="hidden" asp-for="Address.PostalCode" />
-                    <input type="hidden" asp-for="Address.Country" />
+                    <input type="hidden" asp-for="Address.Region" />
 
-                    <!-- Total Price (optional, as it's calculated in the DTO) -->
                     <input type="hidden" asp-for="ShoppingCart.TotalPrice" />
 
-                    <!-- Submit Button -->
-                    <form asp-action="InitializePayment" method="post">
-                        <input type="hidden" asp-for="UserId" />
-                        <input type="hidden" asp-for="ShoppingCart.TotalPrice" />
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa-solid fa-check"></i> Place Order & Pay
-                        </button>
-                    </form>
+                    <div class="d-flex justify-content-end">
+                        <a asp-controller="Address" asp-action="Index" class="btn btn-secondary me-2">
+                            <i class="fa-solid fa-arrow-left"></i> Back
+                        </a>
+                        <form asp-action="InitializePayment" method="post">
+                            <input type="hidden" asp-for="UserId" />
+                            <input type="hidden" asp-for="ShoppingCart.TotalPrice" />
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-check"></i> Place Order & Pay
+                            </button>
+                        </form>
+                    </div>
                 </form>
             </div>
+
         </div>
     </div>
-</div> *@
+</div>

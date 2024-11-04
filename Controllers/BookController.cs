@@ -1,4 +1,5 @@
-﻿using AspNetCoreHero.ToastNotification.Abstractions;
+﻿
+using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
@@ -10,32 +11,33 @@ namespace OnlineBookStoreMVC.Controllers
     public class BookController : Controller
     {
         private readonly IBookService _bookService;
-        private readonly IAuthorService _authorService;
         private readonly ICategoryService _categoryService;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly INotyfService _notyf;
 
         public BookController(IBookService bookService,
-                              IAuthorService authorService,
                               IWebHostEnvironment webHostEnvironment,
-                              ICategoryService catgoryService,
+                              ICategoryService categoryService,
                               INotyfService notyfService)
         {
             _bookService = bookService;
-            _authorService = authorService;
             _webHostEnvironment = webHostEnvironment;
-            _categoryService = catgoryService;
+            _categoryService = categoryService;
             _notyf = notyfService;
         }
 
-        // GET: Book
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 5)
         {
-            var books = await _bookService.GetAllBooksAsync();
+            var paginatedBooks = await _bookService.GetPaginatedBooksAsync(page, pageSize);
+            return View(paginatedBooks);
+        }
+
+        public async Task<IActionResult> GetBooksMissingCoverImage()
+        {
+            var books = await _bookService.GetBooksMissingCoverImageAsync();
             return View(books);
         }
 
-        // GET: Book/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
@@ -47,55 +49,62 @@ namespace OnlineBookStoreMVC.Controllers
             return Json(book);
         }
 
-        // GET: Book/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddCoverImage(Guid bookId, IFormFile coverImageFile)
+        {
+            if (coverImageFile == null || coverImageFile.Length == 0)
+            {
+                _notyf.Error("Please select a valid image file.");
+                return RedirectToAction(nameof(GetBooksMissingCoverImage));
+            }
+
+            var result = await _bookService.AddCoverImageAsync(bookId, coverImageFile);
+            if (result)
+            {
+                _notyf.Success("Cover image updated successfully.");
+            }
+            else
+            {
+                _notyf.Error("Failed to update cover image. Please try again.");
+            }
+
+            return RedirectToAction(nameof(GetBooksMissingCoverImage));
+        }
+
+
         public async Task<IActionResult> Create()
         {
-            ViewBag.Authors = await _authorService.GetAuthorSelectList();
             ViewBag.Categories = await _categoryService.GetCategorySelectList();
             return View();
         }
 
-        // POST: Book/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BookRequestModel bookRequest)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Authors = await _authorService.GetAuthorSelectList();
                 ViewBag.Categories = await _categoryService.GetCategorySelectList();
                 return View(bookRequest);
             }
 
             var book = await _bookService.CreateBookAsync(bookRequest);
-            _notyf.Success("Book Created Successfully");
-            return RedirectToAction(nameof(Index));
+            if (book != null)
+            {
+                _notyf.Success("Book Created Successfully");
+                return RedirectToAction(nameof(Index));
+            }
+
+            _notyf.Error("An error occurred while creating the book. Please try again.");
+            ViewBag.Categories = await _categoryService.GetCategorySelectList();
+            return View(bookRequest);
         }
 
-        //// GET: Books/Create
-        //public async Task<IActionResult> Create()
-        //{
-        //    ViewBag.Authors = await _authorService.GetAuthorSelectList();
-        //    ViewBag.Categories = await _categoryService.GetCategorySelectList();
-        //    return View();
-        //}
-
-        //// POST: Books/Create
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create(BookRequestModel bookRequest)
-        //{
-
-        //    var book = await _bookService.CreateBookAsync(bookRequest);
-        //    _notyf.Success("Book Created Succesfully");
-        //    return RedirectToAction(nameof(Index), new { id = book.Id });
-
-        //    return View(bookRequest);
-        //}
-
-        // GET: Book/Edit/5
         public async Task<IActionResult> Edit(Guid id)
         {
+            ViewBag.Categories = await _categoryService.GetCategorySelectList();
+
             var book = await _bookService.GetBookByIdAsync(id);
             if (book == null)
             {
@@ -108,11 +117,9 @@ namespace OnlineBookStoreMVC.Controllers
                 Description = book.Description,
                 ISBN = book.ISBN,
                 Publisher = book.Publisher,
-                PublicationDate = book.PublicationDate,
                 Price = book.Price,
-                AuthorId = book.AuthorId,
+                Author = book.Author,
                 CategoryId = book.CategoryId,
-                CoverImageUrl = book.CoverImageUrl,
                 Pages = book.Pages,
                 Language = book.Language,
                 TotalQuantity = book.TotalQuantity
@@ -121,17 +128,13 @@ namespace OnlineBookStoreMVC.Controllers
             return View(bookRequest);
         }
 
-        // POST: Book/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, BookRequestModel bookRequest)
         {
-            if (ModelState.IsValid)
-            {
-                await _bookService.UpdateBookAsync(id, bookRequest);
-                _notyf.Success("Book Updated Succesfully");
-                return RedirectToAction(nameof(Index));
-            }
+            await _bookService.UpdateBookAsync(id, bookRequest);
+            _notyf.Success("Book Updated Successfully");
+            return RedirectToAction(nameof(Index));
 
             return View(bookRequest);
         }
@@ -142,5 +145,51 @@ namespace OnlineBookStoreMVC.Controllers
             await _bookService.DeleteBookAsync(id);
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadExcelTemplate()
+        {
+            var fileResult = await _bookService.DownloadExcelTemplateAsync();
+            return fileResult;
+        }
+        public async Task<IActionResult> UploadExcelTemplate()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadExcelTemplate(IFormFile file)
+        {
+            if (file == null || file.Length <= 0)
+            {
+                _notyf.Error("Please upload a valid Excel file.");
+                return RedirectToAction("Index");
+            }
+
+            var fileExtension = Path.GetExtension(file.FileName);
+            if (fileExtension != ".xlsx")
+            {
+                _notyf.Error("Please upload a valid Excel file (.xlsx).");
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+
+                // Process the Excel file and upload books
+                await _bookService.UploadBooksFromExcelAsync(stream);
+
+                _notyf.Success("Books have been successfully uploaded.");
+            }
+            catch (Exception ex)
+            {
+                _notyf.Error($"An error occurred while processing the file: {ex.Message}");
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }
+

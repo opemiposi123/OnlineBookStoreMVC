@@ -2,10 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.DTOs;
 using OnlineBookStoreMVC.Implementation.Interface;
-using OnlineBookStoreMVC.Models.RequestModels;
 using System.Security.Claims;
 using AspNetCoreHero.ToastNotification.Abstractions;
-using OnlineBookStoreMVC.Implementation.Services;
+using System.Drawing.Printing;
 
 namespace OnlineBookStoreMVC.Controllers
 {
@@ -13,13 +12,15 @@ namespace OnlineBookStoreMVC.Controllers
     public class OrderController : Controller
     {
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IAddressService _addressService;
         private readonly IOrderService _orderService;
         private readonly IDeliveryService _deliveryService;
         private readonly PaymentService _paymentService;
         private readonly INotyfService _notyf;
 
-        public OrderController(IOrderService orderService, IShoppingCartService shoppingCartService, PaymentService paymentService, IDeliveryService deliveryService, INotyfService notyf)
+        public OrderController(IAddressService addressService,IOrderService orderService, IShoppingCartService shoppingCartService, PaymentService paymentService, IDeliveryService deliveryService, INotyfService notyf)
         {
+            _addressService = addressService;
             _orderService = orderService;
             _shoppingCartService = shoppingCartService;
             _paymentService = paymentService;
@@ -34,22 +35,31 @@ namespace OnlineBookStoreMVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> OrderSummary()
+        public async Task<IActionResult> OrderSummary(Guid selectedAddressId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var orderSummary = await _orderService.GetOrderSummaryAsync(userId);
+            var selectedAddress = await _addressService.GetAddressByIdAsync(selectedAddressId);
+            if (selectedAddress == null || selectedAddress.UserId != userId)
+            {
+                return BadRequest("Invalid address selected.");
+            }
+            var orderSummary = await _orderService.GetOrderSummaryAsync(userId, selectedAddressId);
+
+            if (orderSummary == null)
+            {
+                return NotFound("Order summary not found.");
+            }
             return View("OrderSummary", orderSummary);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> OrderSummaries()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var orderSummaries = await _orderService.GetAllOrderSummariesAsync(userId);
-            return View(orderSummaries);
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> OrderSummaries()
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var orderSummaries = await _orderService.GetAllOrderSummariesAsync(userId);
+        //    return View(orderSummaries);
+        //}
 
-        // GET: Order/CheckoutComplete/{userId}
         public async Task<IActionResult> CheckoutComplete(string userId)
         {
             var order = await _orderService.CheckoutCompleteAsync(userId);
@@ -60,36 +70,19 @@ namespace OnlineBookStoreMVC.Controllers
             return View(order);
         }
 
-        // POST: Order/CreateOrder
-        [HttpPost]
-        public async Task<IActionResult> CreateOrder(OrderRequestModel orderRequest)
-        {
-            if (ModelState.IsValid)
-            {
-                var order = await _orderService.CreateOrderAsync(orderRequest);
-                _notyf.Success("Order created successfully.");
-                return RedirectToAction(nameof(CheckoutComplete), new { userId = order.UserId });
-            }
-            return View(orderRequest);
-        }
-
         [Authorize(Roles = "Admin,SuperAdmin")]
-        public async Task<IActionResult> ListOrders()
+        public async Task<IActionResult> ListOrders(int page = 1, int pageSize = 10)
         {
-            var orders = await _orderService.GetAllOrdersAsync();
-            return View(orders);
+            var paginatedOrders = await _orderService.GetPaginatedOrdersAsync(page, pageSize); 
+            return View(paginatedOrders);
         }
 
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
-        public async Task<IActionResult> UserOrders(string userId)
+        [HttpGet]
+        public async Task<IActionResult> UserOrders(string userId,int page = 1,int pageSize = 10)
         {
-            var orders = await _orderService.GetOrdersByUserIdAsync(userId);
-            if (orders == null || !orders.Any())
-            {
-                return NotFound();
-            }
-            return View(orders);
+            var paginatedOrders = await _orderService.GetUserPaginatedOrdersAsync(page, pageSize,userId);
+            return View(paginatedOrders);
         }
 
         [HttpPost]
@@ -148,24 +141,24 @@ namespace OnlineBookStoreMVC.Controllers
         public async Task<IActionResult> AllPendingOrderSummaries()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var orderSummaries = await _orderService.GetAllOrderPendingSummariesAsync(userId);
+            var orderSummaries = await _orderService.GetAllPendingOrdersAsync(userId);
             return View(orderSummaries);
         }
 
         [HttpGet]
-        public async Task<IActionResult> AssignDeliveryToOrder(Guid orderId)
+        public async Task<IActionResult> AssignDeliveryToOrder(Guid id)
         {
-            ViewBag.Deliveries = await _deliveryService.GetDeliverySelectList();
-            return View(); 
+            return View(new OrderDto { Id = id });
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> AssignDeliveryToOrder(Guid orderId, Guid deliveryId)
+        public async Task<IActionResult> AssignDeliveryToOrder([FromRoute] Guid id, Guid deliveryId)
         {
-            var result = await _orderService.AssignDeliveryToOrderAsync(orderId, deliveryId);
+            var result = await _orderService.AssignDeliveryToOrderAsync(id, deliveryId);
+
             _notyf.Success(result != null ? "Delivery assigned successfully." : "Failed to assign delivery. Please try again.");
-            return RedirectToAction(nameof(AllPendingOrderSummaries));
+
+            return RedirectToAction("AllPendingOrderSummaries");
         }
     }
 }

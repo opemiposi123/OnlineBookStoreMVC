@@ -1,4 +1,4 @@
-﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.OrderDto>
+﻿@model OnlineBookStoreMVC.DTOs.PaginatedDto<OnlineBookStoreMVC.DTOs.OrderDto>
 
 @{
     ViewData["Title"] = "User Orders";
@@ -6,31 +6,38 @@
 
 <h2>@ViewData["Title"]</h2>
 
-@foreach (var order in Model)
-{
-    <h3>Order ID: @order.Id</h3>
-    <h4>Order Date: @order.OrderDate.ToString("yyyy-MM-dd")</h4>
-    <h4>Total Amount: @order.TotalAmount.ToString("N2")</h4>
-
-    <table class="table table-striped">
-        <thead>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>User</th>
+            <th>Order Date</th>
+            <th>Total Amount</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model.Items)
+        {
             <tr>
-                <th>Book Title</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Total Price</th>
+                <td>@order.Id</td>
+                <td>@order.UserName</td>
+                <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                <td>@order.TotalAmount.ToString("N2")</td>
+                <td>
+                    <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-primary">View Order Detail</a>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in order.OrderItems)
-            {
-                <tr>
-                    <td>@item.BookTitle</td>
-                    <td>@item.Quantity</td>
-                    <td>@item.UnitPrice.ToString("N2")</td>
-                    <td>@(item.Quantity * item.UnitPrice)</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        }
+    </tbody>
+</table>
+<nav>
+    <ul class="pagination justify-content-end">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="ListOrders" asp-route-page="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

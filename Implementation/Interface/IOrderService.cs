@@ -1,21 +1,21 @@
 ﻿using OnlineBookStoreMVC.DTOs;
-using OnlineBookStoreMVC.Models.RequestModels;
+using OnlineBookStoreMVC.Entities;
 
 namespace OnlineBookStoreMVC.Implementation.Interface
 {
     public interface IOrderService
     {
-        Task<List<OrderSummaryDto>> GetAllOrderSummariesAsync(string userId);
-        Task<OrderDto> CheckoutAsync(OrderRequestModel orderRequest);
+       // Task<List<OrderSummaryDto>> GetAllOrderSummariesAsync(string userId);
         Task<OrderDto> CheckoutCompleteAsync(string userId);
-        Task<OrderDto> CreateOrderAsync(OrderRequestModel orderRequest);
         Task<IEnumerable<OrderDto>> GetAllOrdersAsync();
-        Task<IEnumerable<OrderDto>> GetOrdersByUserIdAsync(string userId);
         Task<OrderDto> GetOrderDetailsAsync(Guid id);
         Task<bool> DeleteOrderAsync(Guid id);
-        Task<OrderSummaryDto> GetOrderSummaryAsync(string userId);
+        Task<PaginatedDto<OrderDto>> GetPaginatedOrdersAsync(int page, int pageSize);
+        Task<PaginatedDto<OrderDto>> GetUserPaginatedOrdersAsync(int page, int pageSize, string userId);
         Task<OrderDto> PlaceOrderAsync(OrderSummaryDto orderSummary);
-        Task<List<OrderSummaryDto>> GetAllOrderPendingSummariesAsync(string userId);
+        Task<IEnumerable<OrderDto>> GetAllPendingOrdersAsync(string userId);
+        List<Order> GetAllOrders();
         Task<OrderDto> AssignDeliveryToOrderAsync(Guid orderId, Guid deliveryId);
+        Task<OrderSummaryDto> GetOrderSummaryAsync(string userId, Guid? selectedAddressId);
     }
 }

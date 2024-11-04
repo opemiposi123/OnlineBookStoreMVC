@@ -51,13 +51,19 @@ namespace OnlineBookStoreMVC.Implementation.Services
 
         public async Task AddToCartAsync(string userId, Guid bookId, int quantity)
         {
+            var book = await _context.Books.FindAsync(bookId);
+
+            if (book == null || book.TotalQuantity <= 0)
+            {
+                throw new InvalidOperationException("This book is currently out of stock.");
+            }
+
             var cart = await GetOrCreateCartAsync(userId);
             var cartItem = await _context.ShoppingCartItems
                 .SingleOrDefaultAsync(ci => ci.ShoppingCartId == cart.Id && ci.BookId == bookId);
 
             if (cartItem == null)
             {
-                var book = await _context.Books.FindAsync(bookId);
                 cartItem = new ShoppingCartItem
                 {
                     Id = Guid.NewGuid(),
@@ -71,6 +77,11 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
             else
             {
+                if (cartItem.Quantity + quantity > book.TotalQuantity)
+                {
+                    throw new InvalidOperationException("The quantity exceeds the available stock.");
+                }
+
                 cartItem.Quantity += quantity;
             }
 
@@ -181,6 +192,12 @@ namespace OnlineBookStoreMVC.Implementation.Services
 
             return totalItemsCount;
         }
+        public async Task<decimal> CalculateTotalPriceAsync(string userId)
+        {
+            var cart = await GetOrCreateCartAsync(userId);
+            return cart.ShoppingCartItems.Sum(item => item.Quantity * item.Price);
+        }
+
 
     }
 }

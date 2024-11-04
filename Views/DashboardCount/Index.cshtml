@@ -1,0 +1,75 @@
+﻿@model OnlineBookStoreMVC.DTOs.DashboardCountDto
+
+<div class="container mt-5">
+    <h1 class="text-center mb-5">Admin Dashboard</h1>
+
+    <div class="row">
+        <!-- Users Count -->
+        <div class="col-md-4 mb-4">
+            <a asp-controller="User" asp-action="Index" class="text-decoration-none">
+                <div class="card shadow-sm text-white bg-primary">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Users</h5>
+                        <h2>@Model.UserCount</h2>
+                        <i class="fa fa-users fa-3x"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Deliveries Count -->
+        <div class="col-md-4 mb-4">
+            <a asp-controller="Delivery" asp-action="Index" class="text-decoration-none">
+                <div class="card shadow-sm text-white bg-warning">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Deliveries</h5>
+                        <h2>@Model.DeliveryCount</h2>
+                        <i class="fa fa-truck fa-3x"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Orders Count -->
+        <div class="col-md-4 mb-4">
+            <a asp-controller="Order" asp-action="ListOrders" class="text-decoration-none">
+                <div class="card shadow-sm text-white bg-info">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Orders</h5>
+                        <h2>@Model.OrderCount</h2>
+                        <i class="fa fa-shopping-cart fa-3x"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Categories Count -->
+        <div class="col-md-4 mb-4">
+            <a asp-controller="Category" asp-action="Index" class="text-decoration-none">
+                <div class="card shadow-sm text-white bg-danger">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Categories</h5>
+                        <h2>@Model.CategoryCount</h2>
+                        <i class="fa fa-tags fa-3x"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Books Count -->
+        <div class="col-md-4 mb-4">
+            <a asp-controller="Book" asp-action="Index" class="text-decoration-none">
+                <div class="card shadow-sm text-white bg-dark">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Books</h5>
+                        <h2>@Model.BookCount</h2>
+                        <i class="fa fa-book fa-3x"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Include Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">

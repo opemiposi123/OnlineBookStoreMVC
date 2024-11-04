@@ -4,28 +4,33 @@ using OnlineBookStoreMVC.Models.RequestModels;
 using OnlineBookStoreMVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Identity;
+using OnlineBookStoreMVC.Entities;
 
 [Route("[controller]")]
 public class UserController : Controller
 {
     private readonly IUserService _userService;
     private readonly IEmailService _emailService;
+    private readonly UserManager<User> _userManager;
     private readonly INotyfService _notyf;
 
-    public UserController(IUserService userService, IEmailService emailService, INotyfService notyf)
+    public UserController(IUserService userService, IEmailService emailService, INotyfService notyf, UserManager<User> userManager)
     {
         _userService = userService;
         _emailService = emailService;
         _notyf = notyf;
+        _userManager = userManager;
     }
 
     [Authorize(Roles = "Admin,SuperAdmin")]
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
     {
-        var users = await _userService.GetAllUsersAsync();
-        return View(users);
+        var paginatedUsers = await _userService.GetPaginatedUsersAsync(page, pageSize);
+        return View(paginatedUsers);
     }
+
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Details(string id)
@@ -116,11 +121,26 @@ public class UserController : Controller
 
             if (result.Success)
             {
-                _notyf.Success("Login successful.");
-                return RedirectToAction("Index", "Store");
+                var user = await _userManager.FindByNameAsync(login.Username);
+                if (user != null)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (roles.Contains("Admin") || roles.Contains("SuperAdmin"))
+                    {
+                        _notyf.Success("Login successful.");
+                        return RedirectToAction("Index", "DashboardCount");
+                    }
+                    else if (roles.Contains("User"))
+                    {
+                        _notyf.Success("Login successful.");
+                        return RedirectToAction("Index", "Store");
+                    }
+                }
             }
-
-            ModelState.AddModelError(string.Empty, result.Message);
+            else
+            {
+                _notyf.Error("Invalid username or password. Please try again.");
+            }
         }
 
         return View(login);

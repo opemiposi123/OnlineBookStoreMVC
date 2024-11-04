@@ -1,5 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineBookStoreMVC.Implementation.Interface;
 using OnlineBookStoreMVC.Models.RequestModels;
@@ -7,18 +8,18 @@ using System.Security.Claims;
 
 namespace OnlineBookStoreMVC.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class ShoppingCartController : Controller
     {
         private readonly IShoppingCartService _shoppingCartService;
-        private readonly IAddressService _addressService;
         private readonly INotyfService _notyf;
+        private readonly IUserService _userService;
 
-        public ShoppingCartController(IShoppingCartService shoppingCartService, IAddressService addressService, INotyfService notyfService)
+        public ShoppingCartController(IShoppingCartService shoppingCartService, INotyfService notyfService, IUserService userService)
         {
             _shoppingCartService = shoppingCartService;
-            _addressService = addressService;
             _notyf = notyfService;
+            _userService = userService;
         }
 
         // GET: ShoppingCart/Index
@@ -48,32 +49,74 @@ namespace OnlineBookStoreMVC.Controllers
             return RedirectToAction("Index", "Store", new { userId });
         }
 
-        // POST: ShoppingCart/Reduce
         [HttpPost]
         public async Task<IActionResult> ReduceCartItemQuantity(string userId, Guid bookId)
         {
             var remainingQuantity = await _shoppingCartService.ReduceQuantityAsync(userId, bookId);
-            _notyf.Success("Cart item quantity has been successfully reduced.");
-            return RedirectToAction("Index", new { userId });
+            var totalPrice = await _shoppingCartService.CalculateTotalPriceAsync(userId);
+
+            return Json(new
+            {
+                success = true,
+                remainingQuantity,
+                totalPrice
+            });
         }
 
-        // POST: ShoppingCart/Increase
         [HttpPost]
         public async Task<IActionResult> IncreaseCartItemQuantity(string userId, Guid bookId)
         {
             var remainingQuantity = await _shoppingCartService.IncreaseQuantityAsync(userId, bookId);
-            _notyf.Success("Cart item quantity has been successfully increased.");
-            return RedirectToAction("Index", new { userId });
+            var totalPrice = await _shoppingCartService.CalculateTotalPriceAsync(userId);
+
+            return Json(new
+            {
+                success = true,
+                remainingQuantity,
+                totalPrice
+            });
         }
 
-        // POST: ShoppingCart/Remove
         [HttpPost]
         public async Task<IActionResult> RemoveCartItem(string userId, Guid bookId)
         {
             await _shoppingCartService.RemoveFromCartAsync(userId, bookId);
-            _notyf.Success("Book has been successfully removed from the cart.");
-            return RedirectToAction("Index", new { userId });
+            var totalPrice = await _shoppingCartService.CalculateTotalPriceAsync(userId);
+
+            return Json(new
+            {
+                success = true,
+                totalPrice
+            });
         }
+
+
+
+        //// POST: ShoppingCart/Reduce
+        //[HttpPost]
+        //public async Task<IActionResult> ReduceCartItemQuantity(string userId, Guid bookId)
+        //{
+        //    var remainingQuantity = await _shoppingCartService.ReduceQuantityAsync(userId, bookId);
+        //    _notyf.Success("Cart item quantity has been successfully reduced.");
+        //    return RedirectToAction("Index", new { userId });
+        //}
+
+        //// POST: ShoppingCart/Increase
+        //[HttpPost]
+        //public async Task<IActionResult> IncreaseCartItemQuantity(string userId, Guid bookId)
+        //{
+        //    var remainingQuantity = await _shoppingCartService.IncreaseQuantityAsync(userId, bookId);
+        //    _notyf.Success("Cart item quantity has been successfully increased.");
+        //    return RedirectToAction("Index", new { userId });
+        //}
+        //// POST: ShoppingCart/Remove
+        //[HttpPost]
+        //public async Task<IActionResult> RemoveCartItem(string userId, Guid bookId)
+        //{
+        //    await _shoppingCartService.RemoveFromCartAsync(userId, bookId);
+        //    _notyf.Success("Book has been successfully removed from the cart.");
+        //    return RedirectToAction("Index", new { userId });
+        //}
 
         // POST: ShoppingCart/Clear
         [HttpPost]
@@ -92,23 +135,7 @@ namespace OnlineBookStoreMVC.Controllers
             return Json(new { Total = total });
         }
 
-        [HttpGet]
-        public IActionResult InputAddress()
-        {
-            return View();
-        }
+       
 
-        [HttpPost]
-        public async Task<IActionResult> InputAddress(AddressRequestModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                await _addressService.AddAddressAsync(model, userId);
-                _notyf.Success("Address has been successfully added.");
-                return RedirectToAction("OrderSummary", "Order");
-            }
-            return View(model);
-        }
     }
 }

@@ -1,0 +1,42 @@
+﻿@model OnlineBookStoreMVC.Models.RequestModels.AddressRequestModel
+
+<form asp-action="EditAddress" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div>
+        <label asp-for="FullName"></label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="DeliveryAddress"></label>
+        <input asp-for="DeliveryAddress" class="form-control" />
+        <span asp-validation-for="DeliveryAddress" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="City"></label>
+        <input asp-for="City" class="form-control" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="Region"></label>
+        <input asp-for="Region" class="form-control" />
+        <span asp-validation-for="Region" class="text-danger"></span>
+    </div>
+    <div>
+        <label for="AddittionalPhoneNumber">Additional Phone Number</label>
+        <input asp-for="AddittionalPhoneNumber" class="form-control" />
+        <span asp-validation-for="AddittionalPhoneNumber" class="text-danger"></span>
+    </div>
+    <div>
+        <label>
+            <input asp-for="IsDefault" type="checkbox" /> Set as Default Address
+        </label>
+        <span asp-validation-for="IsDefault" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>

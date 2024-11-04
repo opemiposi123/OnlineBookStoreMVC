@@ -16,13 +16,18 @@ namespace OnlineBookStoreMVC.Implementation.Services
             _context = context;
         }
 
+        public List<Category> GetAllCategories()
+        {
+            return _context.Categories.ToList();
+        }
+
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
         {
             var categories = await _context.Categories.ToListAsync();
-            return categories.Select(c => new CategoryDto 
-            { 
-                Id = c.Id, 
-                Name = c.Name 
+            return categories.Select(c => new CategoryDto
+            {
+                Id = c.Id,
+                Name = c.Name
             });
         }
 
@@ -31,10 +36,21 @@ namespace OnlineBookStoreMVC.Implementation.Services
             var category = await _context.Categories.FindAsync(id);
             if (category == null) return null;
 
-            return new CategoryDto 
-            { 
-                Id = category.Id, 
-                Name = category.Name 
+            return new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name
+            };
+        }
+        public async Task<CategoryDto> GetCategoryByNameAsync(string categoryName)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(a => a.Name == categoryName);
+            if (category == null) return null;
+
+            return new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name
             };
         }
 
@@ -44,10 +60,10 @@ namespace OnlineBookStoreMVC.Implementation.Services
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return new CategoryDto 
-            { 
-                Id = category.Id, 
-                Name = category.Name 
+            return new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name
             };
         }
 
@@ -59,10 +75,10 @@ namespace OnlineBookStoreMVC.Implementation.Services
             category.Name = categoryRequest.Name;
             await _context.SaveChangesAsync();
 
-            return new CategoryDto 
-            { 
-                Id = category.Id, 
-                Name = category.Name 
+            return new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name
             };
         }
 

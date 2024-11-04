@@ -11,7 +11,7 @@ namespace OnlineBookStoreMVC.Implementation.Interface
         Task<bool> SendEmailAsync(MailRecieverDto model, MailRequests request);
         Task NotifyAdminAsync(string message);
         Task<bool> SendForgotPasswordCodeAsync(User user, string code);
-
+        Task<bool> SendOrderConfirmationEmailAsync(string email, string fullName, string deliveryCode, DateTime deliveryDate);
 
     }
 }

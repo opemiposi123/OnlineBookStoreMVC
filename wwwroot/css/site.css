@@ -104,3 +104,32 @@ body {
 
 </style >
 
+body {
+    background-color: #f9f9f9;
+    font-family: 'Arial', sans-serif;
+}
+
+.card {
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #eaeaea;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+
+.form-label {
+    font-weight: bold;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+

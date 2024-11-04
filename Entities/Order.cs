@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineBookStoreMVC.Entities
 {
-    public class Order : BaseEntity
+   public class Order : BaseEntity
     {
         public string UserId { get; set; }
         public User User { get; set; }

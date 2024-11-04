@@ -11,6 +11,11 @@ namespace OnlineBookStoreMVC.Controllers
     {
         private readonly IUserService _userService;
 
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         public AdminController(IUserService userService)
         {
             _userService = userService;

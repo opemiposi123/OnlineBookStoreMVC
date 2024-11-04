@@ -1,4 +1,4 @@
-﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.OrderDto>
+﻿@model OnlineBookStoreMVC.DTOs.PaginatedDto<OnlineBookStoreMVC.DTOs.OrderDto>
 
 @{
     ViewData["Title"] = "Order List";
@@ -7,8 +7,9 @@
 <h2>@ViewData["Title"]</h2>
 
 <a asp-action="AllPendingOrderSummaries" asp-controller="Order" class="btn btn-warning mb-3">View Pending Orders</a>
+<a asp-action="GenerateReport" asp-controller="Report" class="btn btn-success mb-3">Generate Report</a>
 
-<table class="table table-striped"> 
+<table class="table table-striped">
     <thead>
         <tr>
             <th>Order ID</th>
@@ -19,7 +20,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var order in Model)
+        @foreach (var order in Model.Items)
         {
             <tr>
                 <td>@order.Id</td>
@@ -34,3 +35,13 @@
         }
     </tbody>
 </table>
+<nav>
+    <ul class="pagination justify-content-end">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="ListOrders" asp-route-page="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

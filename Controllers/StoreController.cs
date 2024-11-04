@@ -23,7 +23,7 @@ namespace BookStore.Controllers
             if (!string.IsNullOrEmpty(searchString))
             {
                 books = books.Where(b => b.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                                         b.AuthorName.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                                         b.Author.Contains(searchString, StringComparison.OrdinalIgnoreCase));
             }
 
             return View(books);

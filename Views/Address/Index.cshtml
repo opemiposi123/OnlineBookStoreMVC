@@ -1,0 +1,33 @@
+﻿@model IEnumerable<OnlineBookStoreMVC.DTOs.AddressDto>
+@{
+    ViewData["Title"] = "Address Book";
+}
+
+<div class="address-book-container">
+    <h2>Address Book (@Model.Count())</h2>
+    <form method="post" action="/Address/SetDefaultAddress">
+        <div class="address-list">
+            @foreach (var address in Model)
+            {
+                <div class="address-card @(address.IsDefault ? "default" : "")">
+                    <input type="radio" name="SelectedAddress" value="@address.Id" @(address.IsDefault ? "checked" : "") />
+                    <span class="address-name">@address.FullName</span>
+                    <p>@address.DeliveryAddress, @address.City, @address.Region</p>
+                    <p>@address.PhoneNumber</p>
+                    @if (address.IsDefault)
+                    {
+                        <span class="default-label">DEFAULT ADDRESS</span>
+                    }
+                    <a asp-action="EditAddress" asp-route-id="@address.Id" class="btn btn-link">Edit</a>
+                </div>
+            }
+        </div>
+        <br />
+        <a asp-action="AddAddress" class="btn btn-primary">+ Add Address</a>
+        @if (Model.Count() > 0)
+        {
+            <button type="submit" class="btn btn-warning">Select Address</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        }
+    </form>
+</div>
