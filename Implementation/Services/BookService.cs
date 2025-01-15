@@ -48,6 +48,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
                 TotalQuantity = b.TotalQuantity
             });
         }
+
         public async Task<PaginatedDto<BookDto>> GetPaginatedBooksAsync(int page, int pageSize)
         {
             var totalBooks = await _context.Books.CountAsync(b => b.CoverImageUrl != null);
@@ -234,6 +235,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
         }
 
+
         public async Task<string> SaveFileAsync(IFormFile file)
         {
             var uploads = Path.Combine("wwwroot", "images");
@@ -248,6 +250,7 @@ namespace OnlineBookStoreMVC.Implementation.Services
             }
             return $"/images/{file.FileName}";
         }
+
         public async Task<FileResult> DownloadExcelTemplateAsync()
         {
             var categories = await _categoryService.GetCategorySelectList();
